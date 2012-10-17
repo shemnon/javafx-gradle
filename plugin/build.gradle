@@ -1,0 +1,17 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group = 'com.bitbucket.shemnon.javafxplugin'
+version = '0.0.0-SNAPSHOT'
+
+repositories {
+  //mavenRepo urls:'http://bitbucket somewhere'
+  mavenCentral()
+}
+
+dependencies {
+    groovy 'org.codehaus.groovy:groovy-all:2.0.5'
+    compile gradleApi()
+    compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
+}
+
