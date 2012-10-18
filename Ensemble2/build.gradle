@@ -19,6 +19,12 @@ dependencies {
     compile 'org.apache.lucene:lucene-grouping:3.2.0'
 }
 
+javafx {
+    javafxMainClass = 'ensemble.Ensemble2'
+}
+
+
+// App specific stuff, take the local sample sources in as resources and index them
 task copySamples (type:Copy) {
     from('src/main/java') {
         include '**/samples/**/*.java'
@@ -35,9 +41,5 @@ task buildSearchIndex(type:JavaExec) {
     workingDir = sourceSets.main.output.resourcesDir
 }
 
-
 jfxJar.dependsOn(buildSearchIndex)
 
-javafx {
-    javafxMainClass = 'ensemble.Ensemble2'
-}
