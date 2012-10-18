@@ -1,0 +1,43 @@
+apply plugin: 'javafx'
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.bitbucket.shemnon.javafxplugin:plugin:0.0.0-SNAPSHOT'
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.apache.lucene:lucene-core:3.2.0'
+    compile 'org.apache.lucene:lucene-grouping:3.2.0'
+}
+
+task copySamples (type:Copy) {
+    from('src/main/java') {
+        include '**/samples/**/*.java'
+    }
+    into sourceSets.main.output.resourcesDir
+}
+
+task buildSearchIndex(type:JavaExec) {
+    dependsOn copySamples
+    main = 'ensemble.search.BuildEnsembleSearchIndex'
+    classpath {
+        sourceSets.main.runtimeClasspath
+    }
+    workingDir = sourceSets.main.output.resourcesDir
+}
+
+
+jfxJar.dependsOn(buildSearchIndex)
+
+javafx {
+    javafxMainClass = 'ensemble.Ensemble2'
+}

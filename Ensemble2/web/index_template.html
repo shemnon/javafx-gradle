@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JavaFX 2.0 - Ensemble</title>
+<!--        #DT.SCRIPT.CODE#-->
+<!--        #DT.EMBED.CODE.ONLOAD#-->
+        <style>
+            html, body {  
+                margin: 0;  
+                overflow: hidden;  
+                padding: 0; 
+            }
+        </style>
+        <script>
+            function hashchanged(event) {
+                var applet = document.getElementById('ensemble');
+                if (applet != null) {
+                    try {
+                        applet.hashChanged(location.hash);
+                    } catch (err) {
+                        console.log("JS Exception when trying to pass hash to Ensmeble Applet: " + err);
+                    }
+                }
+            }
+        </script> 
+</head>
+<body onhashchange="hashchanged(event)"><div id='javafx-app-placeholder'></div></body>
+</html>
