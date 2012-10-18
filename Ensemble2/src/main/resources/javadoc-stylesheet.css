@@ -1,0 +1,61 @@
+/* Javadoc style sheet */
+/* Font used in left-hand frame lists */
+.FrameTitleFont   { font-size: 100%; font-family: Helvetica, Arial, sans-serif; color:#000000 }
+.FrameHeadingFont { font-size:  90%; font-family: Helvetica, Arial, sans-serif; color:#000000 }
+.FrameItemFont    { font-size:  90%; font-family: Helvetica, Arial, sans-serif; color:#000000 }
+/* Navigation bar fonts and colors */
+.NavBarCell1    { background-color:#EEEEFF; color:#000000} /* Light mauve */
+.NavBarCell1Rev { background-color:#00008B; color:#FFFFFF} /* Dark Blue */
+.NavBarFont1    { font-family: Arial, Helvetica, sans-serif; color:#000000;color:#000000;}
+.NavBarFont1Rev { font-family: Arial, Helvetica, sans-serif; color:#FFFFFF;color:#FFFFFF;}
+.NavBarCell2    { font-family: Arial, Helvetica, sans-serif; background-color:#FFFFFF; color:#000000}
+.NavBarCell3    { font-family: Arial, Helvetica, sans-serif; background-color:#FFFFFF; color:#000000}
+/* ======================================================================================================= */
+/* ENSEMBLE OVERRIDES */
+/* ======================================================================================================= */
+/* Page background color */
+body {
+    background-color: #f6f6f6;
+    color: #404040;
+    font-family: sans-serif;
+}
+/* Hide unneeded stuff */
+hr:first-of-type { display: none; }
+hr:nth-of-type(2) { display: none; }
+table[cellpadding="1"]:first-of-type { display: none; } /* Top Navigation */
+table[cellpadding="1"]:last-of-type { display: none; } /* Bottom Navigation */
+hr:last-of-type { display: none; }
+img[src$="resources/inherit.gif"] { display: none; }
+/* Customize Visuals */
+h1, h2 {
+    font-size: 170%;
+    color: #0072aa;
+    margin: 0; padding: 0;
+}
+h2 br { display: none; } /* fix extra spacing at top of class page */
+h2 font { display: block; } /* fix extra spacing at top of class page */
+a { color: #0072aa; }
+hr {
+    background-color: #c7c6c6;
+    height: 1px;
+    border: 0;
+}
+/* Table Styles*/
+table,tr,td,th {
+    border: 0;
+    background: none;
+}
+.TableHeadingColor b {
+    font-size: 12pt;
+}
+.TableHeadingColor {
+    background: #0072aa;
+    color: white;
+}
+.TableSubHeadingColor {
+    background: #f6f6f6;
+    border: 0;
+}
+.TableRowColor {
+    background: none;
+}
