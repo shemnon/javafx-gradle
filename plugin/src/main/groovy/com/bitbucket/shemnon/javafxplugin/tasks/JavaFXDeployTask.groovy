@@ -29,10 +29,6 @@ package com.bitbucket.shemnon.javafxplugin.tasks;
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.process.internal.ExecAction
-import org.gradle.process.internal.DefaultExecAction
-import org.gradle.process.ExecResult
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.file.FileCollection
 
@@ -42,7 +38,7 @@ class JavaFXDeployTask extends ConventionTask {
     processResources() {
         ant.taskdef(name: 'fxDeploy',
                 classname: 'com.sun.javafx.tools.ant.DeployFXTask',
-                classpath: getAntJavaFXJar().asPath)
+                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.resourcesDir)).asPath)
 
         ant.fxDeploy(
                 //width:
@@ -71,22 +67,6 @@ class JavaFXDeployTask extends ConventionTask {
             )
 
             permissions(elevated: 'true')
-
-//            <fx:deploy width="${applet.width}" height="${applet.height}"
-//            outdir="${basedir}/${dist.dir}" embedJNLP="true"
-//            outfile="${application.title}">
-//
-//            <fx:application refId="sampleApp"/>
-//
-//            <fx:resources refid="appRes"/>
-//
-//            <fx:info title="Sample app: ${application.title}"
-//            vendor="${application.vendor}"/>
-//
-//            <-- Request elevated permissions -->
-//            <fx:permissions elevate="true"/>
-//            </fx:deploy>
-
         }
     }
 

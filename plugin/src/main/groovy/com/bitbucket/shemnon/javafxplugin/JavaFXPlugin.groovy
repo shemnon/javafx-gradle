@@ -70,7 +70,11 @@ class JavaFXPlugin implements Plugin<Project> {
         project.dependencies {
             providedCompile jfxrtJarFile
         }
-//        project.tasks.getByName("task").dependsOn("othertask")
+        project.sourceSets {
+            'package' {
+                resourcesDir = 'src/main'
+            }
+        }
 
         configureJFXDeployTask(project)
         configureJavaFXJarTask(project)
