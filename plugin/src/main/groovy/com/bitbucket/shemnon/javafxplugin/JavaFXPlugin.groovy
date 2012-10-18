@@ -49,11 +49,9 @@ class JavaFXPlugin implements Plugin<Project> {
         configureConfigurations(project.configurations)
 
         def jfxrtJarFile = project.files(findJFXJar())
-        project.configure(project) {
-
-            convention.plugins.javafx = new JavaFXPluginConvention(project, {
+        project.convention.plugins.javafx = new JavaFXPluginConvention(project, {
                 jfxrtJar = jfxrtJarFile
-                antJavaFXJar = files(findAntJavaFXJar())
+                antJavaFXJar = project.files(findAntJavaFXJar())
                 javafxMainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
                 appName = project.name //FIXME capatalize
                 packaging = 'all'
@@ -67,7 +65,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     sigfile = 'JavaFXDebug'
                 }
             })
-        }
+
 
         project.dependencies {
             providedCompile jfxrtJarFile

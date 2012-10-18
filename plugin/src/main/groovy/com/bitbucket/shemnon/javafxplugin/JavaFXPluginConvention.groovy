@@ -63,6 +63,11 @@ class JavaFXPluginConvention extends BasePluginConvention {
         releaseKey = new SigningKeyInfo(closure)
     }
 
+    def javafx(Closure closure) {
+        closure.delegate = this
+        closure()
+    }
+
 }
 
 class SigningKeyInfo {
