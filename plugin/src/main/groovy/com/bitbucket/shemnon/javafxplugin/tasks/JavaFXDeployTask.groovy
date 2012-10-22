@@ -38,7 +38,7 @@ class JavaFXDeployTask extends ConventionTask {
     processResources() {
         ant.taskdef(name: 'fxDeploy',
                 classname: 'com.sun.javafx.tools.ant.DeployFXTask',
-                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.resourcesDir)).asPath)
+                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.allSource.srcDirs)).asPath)
 
         ant.fxDeploy(
                 //width:
