@@ -36,6 +36,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
+import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXCSSToBinTask
 
 
 class JavaFXPlugin implements Plugin<Project> {
@@ -72,12 +73,15 @@ class JavaFXPlugin implements Plugin<Project> {
         }
         project.sourceSets {
             'package' {
-                resourcesDir = 'src/main'
+                resources {
+                    srcDir 'src/main'
+                }
             }
         }
 
         configureJFXDeployTask(project)
         configureJavaFXJarTask(project)
+        configureJavaFXCSSToBinTask(project)
     }
 
     private configureJFXDeployTask(Project project) {
@@ -126,6 +130,21 @@ class JavaFXPlugin implements Plugin<Project> {
         }
 
         project.tasks.getByName("jfxDeploy").dependsOn(task)
+    }
+
+    private configureJavaFXCSSToBinTask(Project project) {
+        def task = project.task("cssToBin", description: "Converts CSS to Binary CSS", type: JavaFXCSSToBinTask)
+
+        task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
+        task.conventionMapping.jfxrtJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).jfxrtJar }
+
+        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
+
+        task.conventionMapping.inputFiles = {convention, aware ->
+            project.fileTree(dir: convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir, include: '**/*.css')
+        }
+
+        project.tasks.getByName("jfxJar").dependsOn(task)
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
