@@ -79,7 +79,7 @@ public class OverlayMediaPlayer extends Sample {
         playerPane.setMinSize(mediaWidth, mediaHeight);  
         playerPane.setPrefSize(mediaWidth, mediaHeight);
         playerPane.setMaxSize(mediaWidth, mediaHeight);
-        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.css");
+        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.bss");
         getChildren().add(playerPane);
     }
 

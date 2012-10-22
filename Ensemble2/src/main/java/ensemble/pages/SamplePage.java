@@ -413,7 +413,7 @@ public class SamplePage extends Page {
         if (shCoreJs == null) shCoreJs = Utils.loadFile(Ensemble2.class.getResource("syntaxhighlighter/shCore.js")) +";";
         if (shBrushJScript == null) shBrushJScript = Utils.loadFile(Ensemble2.class.getResource("syntaxhighlighter/shBrushJava.js"));
         if (shCoreDefaultCss == null) shCoreDefaultCss =
-                Utils.loadFile(Ensemble2.class.getResource("syntaxhighlighter/shCoreDefault.css")).replaceAll("!important","");
+                Utils.loadFile(Ensemble2.class.getResource("syntaxhighlighter/shCoreDefault.bss")).replaceAll("!important","");
         // load and convert source
         String source = SampleProjectBuilder.loadAndConvertSampleCode(sampleInfo.getSourceFileUrl());
         // store raw code

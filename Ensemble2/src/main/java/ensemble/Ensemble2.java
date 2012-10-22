@@ -162,7 +162,7 @@ public class Ensemble2 extends Application {
             //RT-13234
             scene.setCamera(new PerspectiveCamera());
         }
-        scene.getStylesheets().add(Ensemble2.class.getResource("ensemble2.css").toExternalForm());
+        scene.getStylesheets().add(Ensemble2.class.getResource("ensemble2.bss").toExternalForm());
         // create modal dimmer, to dim screen when showing modal dialogs
         modalDimmer = new StackPane();
         modalDimmer.setId("ModalDimmer");

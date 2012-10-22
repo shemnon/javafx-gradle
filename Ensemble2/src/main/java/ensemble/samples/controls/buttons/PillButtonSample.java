@@ -52,7 +52,7 @@ public class PillButtonSample extends Sample {
 
     public PillButtonSample() {
 
-        String pillButtonCss = PillButtonSample.class.getResource("PillButton.css").toExternalForm();
+        String pillButtonCss = PillButtonSample.class.getResource("PillButton.bss").toExternalForm();
 
         // create 3 toggle buttons and a toogle group for them
         ToggleButton tb1 = new ToggleButton("Left Button");

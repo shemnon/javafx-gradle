@@ -77,7 +77,7 @@ public class StreamingMediaPlayer extends Sample {
         playerPane.setMinSize(480, 360);  
         playerPane.setPrefSize(480, 360);
         playerPane.setMaxSize(480, 360);
-        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.css");
+        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.bss");
         getChildren().add(playerPane);
     }
 

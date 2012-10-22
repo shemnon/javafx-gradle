@@ -45,7 +45,7 @@ import javafx.scene.layout.RegionBuilder;
 public class HiddenSplitPaneSample extends Sample {
 
     public HiddenSplitPaneSample() {
-        String hidingSplitPaneCss = HiddenSplitPaneSample.class.getResource("HiddenSplitPane.css").toExternalForm();
+        String hidingSplitPaneCss = HiddenSplitPaneSample.class.getResource("HiddenSplitPane.bss").toExternalForm();
         final SplitPane splitPane = SplitPaneBuilder.create().id("hiddenSplitter").items(
                 RegionBuilder.create().styleClass("rounded").build(),
                 RegionBuilder.create().styleClass("rounded").build(),

@@ -112,7 +112,7 @@ public class AlphaMediaPlayer extends Sample {
         planetaryPlayerPane.setMinSize(480, 320);  
         planetaryPlayerPane.setPrefSize(480, 320);
         planetaryPlayerPane.setMaxSize(480, 320);
-        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.css");
+        getStylesheets().add("ensemble/samples/media/OverlayMediaPlayer.bss");
         // REMOVE ME
         setControls(
                 new SimplePropertySheet.PropDesc("Arth Position", arthPos, -100d, 100d),

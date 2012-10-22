@@ -49,7 +49,7 @@ public class InsetTextSample extends Sample {
 
     public InsetTextSample() {
 
-        String insetTextCss = InsetTextSample.class.getResource("InsetText.css").toExternalForm();
+        String insetTextCss = InsetTextSample.class.getResource("InsetText.bss").toExternalForm();
         Label label = LabelBuilder.create().text("Label styled as a bar").id("label1").build();
         label.getStylesheets().add(insetTextCss);
         getChildren().add(label);

@@ -59,7 +59,7 @@ public class ImageBarChartSample extends Sample {
 
     public ImageBarChartSample() {
 
-        String imageBarChartCss = ImageBarChartSample.class.getResource("ImageBarChart.css").toExternalForm();
+        String imageBarChartCss = ImageBarChartSample.class.getResource("ImageBarChart.bss").toExternalForm();
 
         BarChart barChart = new BarChart(new CategoryAxis(), new NumberAxis());
         barChart.setLegendVisible(false);
@@ -74,7 +74,7 @@ public class ImageBarChartSample extends Sample {
                 new XYChart.Data<String, Integer>("Van", 20))));
 
         Scene scene = new Scene(barChart, 350, 300);
-        scene.getStylesheets().add(ImageBarChartSample.class.getResource("ImageBarChart.css").toString());
+        scene.getStylesheets().add(ImageBarChartSample.class.getResource("ImageBarChart.bss").toString());
         getChildren().add(barChart);
     }
 }

@@ -53,7 +53,7 @@ public class StyledToolBarSample extends Sample {
     public StyledToolBarSample() {
         ToolBar standardToolbar = createToolBar("standard");
 
-        String styledToolBarCss = StyledToolBarSample.class.getResource("StyledToolBar.css").toExternalForm();
+        String styledToolBarCss = StyledToolBarSample.class.getResource("StyledToolBar.bss").toExternalForm();
         
         ToolBar darkToolbar = createToolBar("dark");        
         darkToolbar.getStylesheets().add(styledToolBarCss);

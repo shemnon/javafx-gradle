@@ -55,7 +55,7 @@ public class DrilldownPieChartSample extends Sample {
     PieChart.Data A, B, C, D;
 
     public DrilldownPieChartSample() {
-        String drilldownCss = DrilldownPieChartSample.class.getResource("DrilldownChart.css").toExternalForm();
+        String drilldownCss = DrilldownPieChartSample.class.getResource("DrilldownChart.bss").toExternalForm();
 
         PieChart pie = new PieChart(
                 FXCollections.observableArrayList(

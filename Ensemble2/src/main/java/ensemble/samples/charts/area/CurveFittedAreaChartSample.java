@@ -72,7 +72,7 @@ public class CurveFittedAreaChartSample extends Sample {
                 new XYChart.Data<Number, Number>(7500, 180),
                 new XYChart.Data<Number, Number>(10000, 100));
         chart.getData().add(series);
-        String curveFittedChartCss = CurveFittedAreaChartSample.class.getResource("CurveFittedChart.css").toExternalForm();
+        String curveFittedChartCss = CurveFittedAreaChartSample.class.getResource("CurveFittedChart.bss").toExternalForm();
         chart.getStylesheets().add(curveFittedChartCss);
         getChildren().add(chart);
     }

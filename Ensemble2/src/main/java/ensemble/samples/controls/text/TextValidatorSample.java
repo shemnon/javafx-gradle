@@ -58,7 +58,7 @@ import javafx.scene.layout.StackPane;
  */
 public class TextValidatorSample extends Sample {
     public TextValidatorSample() {
-        String validatorCss = TextValidatorSample.class.getResource("Validators.css").toExternalForm();
+        String validatorCss = TextValidatorSample.class.getResource("Validators.bss").toExternalForm();
         
         TextField dateField = new TextField();
         dateField.setPromptText("Enter a Large Number");
