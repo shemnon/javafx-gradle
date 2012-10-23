@@ -1,0 +1,18 @@
+apply plugin: 'javafx'
+
+buildscript {
+    if (!JavaVersion.current().isJava8Compatible()) {
+        throw new GradleException("JavaFX 8 required")
+    }
+
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.bitbucket.shemnon.javafxplugin:plugin:0.0.0-SNAPSHOT'
+    }
+}
+
+javafx {
+    javafxMainClass = 'com.javafx.experiments.scheduleapp.ConferenceScheduleApp'
+}
