@@ -60,10 +60,15 @@ public class ComboBoxSample extends Sample {
         HBox hbox = HBoxBuilder.create().alignment(Pos.CENTER).spacing(15).build();
                
         //Non-editable combobox. Created with a builder
-        ComboBox uneditableComboBox = ComboBoxBuilder.create()
-                .id("uneditable-combobox")
-                .promptText("Make a choice...")
-                .items(FXCollections.observableArrayList(strings.subList(0, 8))).build();
+//        ComboBox uneditableComboBox = ComboBoxBuilder.create()
+//                .id("uneditable-combobox")
+//                .promptText("Make a choice...")
+//                .items(FXCollections.observableArrayList(strings.subList(0, 8))).build();
+        // broken in 8-ea-b61
+        ComboBox<String> uneditableComboBox = new ComboBox<String>();
+        uneditableComboBox.setId("uneditable-combobox");
+        uneditableComboBox.setPromptText("Make a choice...");
+        uneditableComboBox.setItems(FXCollections.observableArrayList(strings.subList(0, 8)));
 
         //Editable combobox. Use the default item display length
         ComboBox<String> editableComboBox = new ComboBox<String>();
