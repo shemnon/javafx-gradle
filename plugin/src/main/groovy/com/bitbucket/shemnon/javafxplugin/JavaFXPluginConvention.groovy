@@ -41,6 +41,7 @@ class JavaFXPluginConvention extends BasePluginConvention {
     SigningKeyInfo debugKey
     SigningKeyInfo releaseKey
 
+    String signingMode
 
     // app info
     String appID
@@ -77,7 +78,7 @@ class SigningKeyInfo {
     String keypass
     File keystore
     String storepass
-    String sigfile
+    String storetype
 
 
     public SigningKeyInfo(Closure configure) {

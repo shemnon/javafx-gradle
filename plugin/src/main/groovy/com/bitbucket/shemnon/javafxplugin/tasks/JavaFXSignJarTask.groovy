@@ -26,65 +26,63 @@
  */
 package com.bitbucket.shemnon.javafxplugin.tasks;
 
+
+import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.internal.ConventionTask
-import org.gradle.api.file.FileCollection
 
-class JavaFXDeployTask extends ConventionTask {
+/**
+ * Created by IntelliJ IDEA.
+ * User: dannoferrin
+ * Date: 3/5/11
+ * Time: 7:18 AM
+ */
+public class JavaFXSignJarTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        ant.taskdef(name: 'fxDeploy',
-                classname: 'com.sun.javafx.tools.ant.DeployFXTask',
-                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.allSource.srcDirs)).asPath)
 
-        ant.fxDeploy(
-                //width:
-                //height:
-                outDir: getDistsDir(),
-                embedJNLP: true,
-                outFile: getAppName(),
-                nativeBundles: getPackaging()
+        project.mkdir(getDestdir())
+
+        ant.taskdef(name: 'fxSignJar',
+                classname: 'com.sun.javafx.tools.ant.FXSignJarTask',
+                classpath: getAntJavaFXJar().asPath)
+
+
+        ant.fxSignJar(
+                makeAttributes()
         ) {
-
-            application(
-                    id: getAppID(),
-                    name: getAppName(),
-                    mainClass: getMainClass()
-                    //FIXME preloader
-                    //FIXME fallback
-            )
-            resources {
-                getInputFiles().filter() { it.file } each {
-                    fileset(file: it)
-                }
-
+            getInputFiles().filter { it.file && it.name.endsWith(".jar") } each {
+                println it
+                fileset(file: it)
             }
-            info(
-                    title: getAppName()
-            )
-
-            permissions(elevated: 'true')
         }
     }
 
-    String packaging
+    String alias
+    String keypass
+    File keystore
+    String storepass
+    String storetype
+    String verbose = "true"
 
     FileCollection antJavaFXJar
 
-    String appID
-    String appName
-    String mainClass
-
+    @OutputDirectory
+    File destdir
 
     @InputFiles
     FileCollection inputFiles
 
-
-    @OutputDirectory
-    File distsDir
-
-
+    private Map makeAttributes() {
+        def result = [:]
+        ['alias', 'keypass', 'keystore', 'storepass', 'storetype', 'verbose', 'destdir', 'verbose'].each {
+            if (this[it]) {
+                result[it] = this[it]
+            }
+        }
+        return result
+    }
 }

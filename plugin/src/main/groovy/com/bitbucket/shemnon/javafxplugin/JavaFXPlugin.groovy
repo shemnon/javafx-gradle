@@ -37,6 +37,8 @@ import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXCSSToBinTask
+import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXSignJarTask
+import com.bitbucket.shemnon.javafxplugin.tasks.GenKeyTask
 
 
 class JavaFXPlugin implements Plugin<Project> {
@@ -58,13 +60,13 @@ class JavaFXPlugin implements Plugin<Project> {
                 packaging = 'all'
                 debugKey {
                     alias = 'javafxdebugkey'
-                    dname = 'CN=JavaFX Debug,C=US'
+                    dname = 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug'
                     validity = ((365.25) * 25 as int) // 25 years
                     keypass = 'JavaFX'
                     keystore = new File(project.projectDir, 'debug.keystore')
                     storepass = 'JavaFX'
-                    sigfile = 'JavaFXDebug'
                 }
+                signingMode = 'debug'
             })
 
 
@@ -79,37 +81,27 @@ class JavaFXPlugin implements Plugin<Project> {
             }
         }
 
-        configureJFXDeployTask(project)
-        configureJavaFXJarTask(project)
         configureJavaFXCSSToBinTask(project)
+        configureJavaFXJarTask(project)
+        configureGenerateDebugKeyTask(project)
+        configureJavaFXSignJarTask(project)
+        configureJFXDeployTask(project)
     }
 
-    private configureJFXDeployTask(Project project) {
-        def task = project.task("jfxDeploy", description: "Processes the JavaFX jars and generates webstart and native packages", type: JavaFXDeployTask)
 
-        task.conventionMapping.packaging = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).packaging }
+    private configureJavaFXCSSToBinTask(Project project) {
+        def task = project.task("cssToBin", description: "Converts CSS to Binary CSS", type: JavaFXCSSToBinTask)
 
-        task.conventionMapping.antJavaFXJar = {convention, aware ->
-            convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
+        task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
+        task.conventionMapping.jfxrtJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).jfxrtJar }
 
-        task.conventionMapping.appID = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appID }
-        task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
-        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
 
-        task.conventionMapping.inputFiles = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.runtimeClasspath }
         task.conventionMapping.inputFiles = {convention, aware ->
-            FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
-            Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
-            runtimeClasspath  + project.files("$project.libsDir/${project.archivesBaseName}.jar" as File)- providedRuntime
+            project.fileTree(dir: convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir, include: '**/*.css')
         }
-        //TODO substract provided runtime
 
-        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).distsDir }
-
-        project.tasks.getByName("assemble").dependsOn(task)
-        project.tasks.getByName("jar").enabled = false
     }
-
 
     private configureJavaFXJarTask(Project project) {
         def task = project.task("jfxJar", description: "Jars up the classes and adds JavaFX specific packaging", type: JavaFXJarTask)
@@ -129,22 +121,67 @@ class JavaFXPlugin implements Plugin<Project> {
             compileClasspath + output - providedCompile;
         }
 
-        project.tasks.getByName("jfxDeploy").dependsOn(task)
+        task.dependsOn(project.tasks.getByName("cssToBin"))
+
     }
 
-    private configureJavaFXCSSToBinTask(Project project) {
-        def task = project.task("cssToBin", description: "Converts CSS to Binary CSS", type: JavaFXCSSToBinTask)
+    private configureGenerateDebugKeyTask(Project project) {
+        def task = project.task("generateDebugKey", description: "Generates the JAvaFX Debug Key", type: GenKeyTask)
+
+        task.conventionMapping.alias     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.alias }
+        task.conventionMapping.dname     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.dname }
+        task.conventionMapping.validity  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.validity }
+        task.conventionMapping.keypass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keypass }
+        task.conventionMapping.keystore  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keystore }
+        task.conventionMapping.storepass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storepass }
+    }
+
+    private configureJavaFXSignJarTask(Project project) {
+        def task = project.task("jfxSignJar", description: "Signs the JavaFX jars the JavaFX way", type: JavaFXSignJarTask)
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
-        task.conventionMapping.jfxrtJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).jfxrtJar }
 
-        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
-
-        task.conventionMapping.inputFiles = {convention, aware ->
-            project.fileTree(dir: convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir, include: '**/*.css')
+        ['alias', 'keypass', 'keystore', 'storepass', 'storetype'].each { prop ->
+            task.conventionMapping[prop]  = {convention, aware ->
+                def jfxc = convention.getPlugin(JavaFXPluginConvention);
+                return jfxc["${jfxc.signingMode}Key"][prop]
+            }
         }
 
-        project.tasks.getByName("jfxJar").dependsOn(task)
+        task.conventionMapping.destdir = {convention, aware -> "$project.libsDir/../signed" as File}
+
+        task.conventionMapping.inputFiles = {convention, aware ->
+            FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
+            Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
+            runtimeClasspath  + project.files("$project.libsDir/${project.archivesBaseName}.jar" as File)- providedRuntime
+        }
+
+        task.dependsOn(project.tasks.getByName("jfxJar"))
+        task.dependsOn(project.tasks.getByName("generateDebugKey"))
+    }
+
+    private configureJFXDeployTask(Project project) {
+        def task = project.task("jfxDeploy", description: "Processes the JavaFX jars and generates webstart and native packages", type: JavaFXDeployTask)
+
+        task.conventionMapping.packaging = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).packaging }
+
+        task.conventionMapping.antJavaFXJar = {convention, aware ->
+            convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
+
+        task.conventionMapping.appID = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appID }
+        task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
+        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+
+
+        task.conventionMapping.inputFiles = {convention, aware ->
+            project.fileTree("$project.libsDir/../signed").include("*.jar")
+        }
+
+        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).distsDir }
+
+        task.dependsOn(project.tasks.getByName("jfxSignJar"))
+        project.tasks.getByName("assemble").dependsOn(task)
+        project.tasks.getByName("jar").enabled = false
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {

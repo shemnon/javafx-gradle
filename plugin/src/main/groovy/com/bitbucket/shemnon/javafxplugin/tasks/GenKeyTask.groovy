@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Danno Ferrin
+ * Copyright (c) 2011-2012, Danno Ferrin
  *   All rights reserved.
  *
  *   Redistribution and use in source and binary forms, with or without
@@ -26,65 +26,60 @@
  */
 package com.bitbucket.shemnon.javafxplugin.tasks;
 
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecResult
+import org.gradle.process.internal.DefaultExecAction
+import org.gradle.process.internal.ExecAction
 
-class JavaFXDeployTask extends ConventionTask {
+/**
+ * Created by IntelliJ IDEA.
+ * User: dannoferrin
+ * Date: 3/8/11
+ * Time: 9:07 PM
+ */
+class GenKeyTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        ant.taskdef(name: 'fxDeploy',
-                classname: 'com.sun.javafx.tools.ant.DeployFXTask',
-                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.allSource.srcDirs)).asPath)
+        if (getKeystore().exists()) return
 
-        ant.fxDeploy(
-                //width:
-                //height:
-                outDir: getDistsDir(),
-                embedJNLP: true,
-                outFile: getAppName(),
-                nativeBundles: getPackaging()
-        ) {
+        ExecAction aaptExec = new DefaultExecAction()
+        aaptExec.workingDir = project.projectDir
+        aaptExec.executable = "${System.properties['java.home']}/bin/keytool"
 
-            application(
-                    id: getAppID(),
-                    name: getAppName(),
-                    mainClass: getMainClass()
-                    //FIXME preloader
-                    //FIXME fallback
-            )
-            resources {
-                getInputFiles().filter() { it.file } each {
-                    fileset(file: it)
-                }
-
+        def args = []
+        args << '-genkeypair'
+        ['alias', 'dname', 'validity', 'keypass', 'keystore', 'storepass'].each {
+            if (this[it]) {
+                args << "-$it" << this[it] as String
             }
-            info(
-                    title: getAppName()
-            )
-
-            permissions(elevated: 'true')
         }
+
+        // [-v]
+        // [-protected]
+        // [-keyalg <keyalg>]
+        // [-keysize <keysize>]
+        // [-sigalg <sigalg>]
+        // [-storetype <storetype>]
+        // [-providername <name>]
+        // [-providerclass <provider_class_name> [-providerarg <arg>]] ...
+        // [-providerpath <pathlist>]
+
+
+        aaptExec.args = args
+
+        ExecResult exec = aaptExec.execute()
+        exec.assertNormalExitValue()
     }
 
-    String packaging
+    @OutputFile
+    File keystore
 
-    FileCollection antJavaFXJar
-
-    String appID
-    String appName
-    String mainClass
-
-
-    @InputFiles
-    FileCollection inputFiles
-
-
-    @OutputDirectory
-    File distsDir
-
-
+    String alias
+    String dname
+    Integer validity // conventions don't play nice with primitives
+    String keypass
+    String storepass
 }
