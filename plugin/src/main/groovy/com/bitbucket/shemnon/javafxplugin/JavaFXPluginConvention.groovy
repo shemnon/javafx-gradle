@@ -45,7 +45,7 @@ class JavaFXPluginConvention extends BasePluginConvention {
     // app info
     String appID
     String appName
-    String javafxMainClass
+    String mainClass
 
     String packaging
 

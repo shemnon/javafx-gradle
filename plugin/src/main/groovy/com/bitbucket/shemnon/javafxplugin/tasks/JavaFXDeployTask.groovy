@@ -52,7 +52,7 @@ class JavaFXDeployTask extends ConventionTask {
             application(
                     id: getAppID(),
                     name: getAppName(),
-                    mainClass: getJavafxMainClass()
+                    mainClass: getMainClass()
                     //FIXME preloader
                     //FIXME fallback
             )
@@ -76,7 +76,7 @@ class JavaFXDeployTask extends ConventionTask {
 
     String appID
     String appName
-    String javafxMainClass
+    String mainClass
 
 
     @InputFiles

@@ -20,7 +20,7 @@ dependencies {
 }
 
 javafx {
-    javafxMainClass = 'ensemble.Ensemble2'
+    mainClass = 'ensemble.Ensemble2'
 }
 
 

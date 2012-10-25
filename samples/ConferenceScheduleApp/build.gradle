@@ -14,5 +14,5 @@ buildscript {
 }
 
 javafx {
-    javafxMainClass = 'com.javafx.experiments.scheduleapp.ConferenceScheduleApp'
+    mainClass = 'com.javafx.experiments.scheduleapp.ConferenceScheduleApp'
 }

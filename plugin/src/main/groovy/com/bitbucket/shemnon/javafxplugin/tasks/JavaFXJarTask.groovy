@@ -58,7 +58,7 @@ public class JavaFXJarTask extends ConventionTask {
             }
             application(
                     name: getAppName(),
-                    mainClass: getJavafxMainClass()
+                    mainClass: getMainClass()
                     //FIXME preloader
                     //FIXME fallback
             )
@@ -68,7 +68,7 @@ public class JavaFXJarTask extends ConventionTask {
     FileCollection antJavaFXJar
 
     String appName
-    String javafxMainClass
+    String mainClass
 
     @OutputFile
     File outputFile

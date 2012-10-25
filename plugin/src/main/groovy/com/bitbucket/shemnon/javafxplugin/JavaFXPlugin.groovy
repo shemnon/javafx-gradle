@@ -53,7 +53,7 @@ class JavaFXPlugin implements Plugin<Project> {
         project.convention.plugins.javafx = new JavaFXPluginConvention(project, {
                 jfxrtJar = jfxrtJarFile
                 antJavaFXJar = project.files(findAntJavaFXJar())
-                javafxMainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
+                mainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
                 appName = project.name //FIXME capatalize
                 packaging = 'all'
                 debugKey {
@@ -94,7 +94,7 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.appID = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appID }
         task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
-        task.conventionMapping.javafxMainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).javafxMainClass }
+        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
 
         task.conventionMapping.inputFiles = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.runtimeClasspath }
         task.conventionMapping.inputFiles = {convention, aware ->
@@ -116,7 +116,7 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
 
-        task.conventionMapping.javafxMainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).javafxMainClass }
+        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
         task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
 
         task.conventionMapping.outputFile = {convention, aware ->
