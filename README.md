@@ -8,13 +8,13 @@ Hopefully this plugin will also set conventions that a Maven Mojo could follow a
 
 To Test Drive
 =============
-This plugin works with either Java 7 or Java 8, but the `ConferenceScheduleApp` demo requires JavaFX 8.  So these steps presume that you are running JDK8-ea-b61 or later.  Also, for the installers you need the pre-requisite third party items installed (this is mostly a windows issue)
+This plugin works with either Java 7 or Java 8 (except the `ConferenceScheduleApp` demo requires JavaFX 8).  For Windows installers you need the pre-requisite third party items installed.
 
     #install the plugin to your local maven repo
     gradle install
     
     #Build the samples
-    cd samples
+    cd samples/<sample of choice>
     gradle assemble
 
 The samples will land in `samples/<sample>/build/distributions/bundles`.
