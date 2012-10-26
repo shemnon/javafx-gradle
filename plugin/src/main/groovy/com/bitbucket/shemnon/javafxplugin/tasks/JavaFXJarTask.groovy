@@ -62,6 +62,11 @@ public class JavaFXJarTask extends ConventionTask {
                     //FIXME preloader
                     //FIXME fallback
             )
+            ant.resources {
+                getResources().filter { it.file } each {
+                    fileset(file: it)
+                }
+            }
         }
     }
 
@@ -72,6 +77,9 @@ public class JavaFXJarTask extends ConventionTask {
 
     @OutputFile
     File outputFile
+
+    @InputFiles
+    FileCollection resources
 
     @InputFiles
     FileCollection inputFiles

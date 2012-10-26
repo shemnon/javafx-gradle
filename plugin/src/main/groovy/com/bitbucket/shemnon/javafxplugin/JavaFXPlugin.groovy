@@ -114,11 +114,12 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.outputFile = {convention, aware ->
             "$project.libsDir/${project.archivesBaseName}.jar" as File}
 
-        task.conventionMapping.inputFiles = {convention, aware ->
+        task.conventionMapping.inputFiles = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output}
+        task.conventionMapping.resources = {convention, aware ->
             FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
-            FileCollection output = convention.getPlugin(JavaPluginConvention).sourceSets.main.output
-            compileClasspath + output - providedCompile;
+            FileCollection output =
+            compileClasspath - providedCompile;
         }
 
         task.dependsOn(project.tasks.getByName("cssToBin"))
