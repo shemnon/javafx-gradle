@@ -1,0 +1,14 @@
+apply plugin: 'javafx'
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.bitbucket.shemnon.javafxplugin:plugin:0.0.0-SNAPSHOT'
+    }
+}
+
+javafx {
+    mainClass = 'swinginterop.SwingInterop'
+}
