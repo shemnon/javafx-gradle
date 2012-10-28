@@ -33,6 +33,7 @@ import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXJarTask
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.JavaExec
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
@@ -86,6 +87,7 @@ class JavaFXPlugin implements Plugin<Project> {
         configureGenerateDebugKeyTask(project)
         configureJavaFXSignJarTask(project)
         configureJFXDeployTask(project)
+        configureRunTask(project)
     }
 
 
@@ -118,8 +120,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.resources = {convention, aware ->
             FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
-            FileCollection output =
-            compileClasspath - providedCompile;
+            FileCollection output = compileClasspath - providedCompile;
         }
 
         task.dependsOn(project.tasks.getByName("cssToBin"))
@@ -183,6 +184,12 @@ class JavaFXPlugin implements Plugin<Project> {
         task.dependsOn(project.tasks.getByName("jfxSignJar"))
         project.tasks.getByName("assemble").dependsOn(task)
         project.tasks.getByName("jar").enabled = false
+    }
+    
+    private void configureRunTask(Project project) {
+        def run = project.tasks.add("run", JavaExec)
+        run.classpath = project.sourceSets.main.runtimeClasspath
+        run.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
