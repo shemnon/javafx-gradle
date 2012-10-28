@@ -88,6 +88,7 @@ class JavaFXPlugin implements Plugin<Project> {
         configureJavaFXSignJarTask(project)
         configureJFXDeployTask(project)
         configureRunTask(project)
+        configureDebugTask(project)
     }
 
 
@@ -190,6 +191,13 @@ class JavaFXPlugin implements Plugin<Project> {
         def run = project.tasks.add("run", JavaExec)
         run.classpath = project.sourceSets.main.runtimeClasspath
         run.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+    }
+
+    private void configureDebugTask(Project project) {
+        def debug = project.tasks.add("debug", JavaExec)
+        debug.classpath = project.sourceSets.main.runtimeClasspath
+        debug.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        debug.debug = true
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
