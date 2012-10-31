@@ -144,11 +144,20 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
 
-        ['alias', 'keypass', 'keystore', 'storepass', 'storetype'].each { prop ->
+        ['alias', 'keypass', 'storepass', 'storetype'].each { prop ->
             task.conventionMapping[prop]  = {convention, aware ->
                 def jfxc = convention.getPlugin(JavaFXPluginConvention);
-                return jfxc["${jfxc.signingMode}Key"][prop]
+                def props = project.properties
+                def mode = props['javafx.signingMode']  ?: jfxc.signingMode
+                return props?."javafx.${mode}Key.$prop" ?: jfxc?."${mode}Key"?.'prop'
             }
+        }
+        task.conventionMapping.keystore  = {convention, aware ->
+            def jfxc = convention.getPlugin(JavaFXPluginConvention);
+            def props = project.properties
+            def mode = props['javafx.signingMode']  ?: jfxc.signingMode
+            String keyFile = props?."javafx.${mode}Key.keystore"
+            return keyFile == null ? jfxc?."${mode}Key"?.keystore : new File(keyFile)
         }
 
         task.conventionMapping.destdir = {convention, aware -> "$project.libsDir/../signed" as File}
