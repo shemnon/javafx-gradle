@@ -41,12 +41,14 @@ class JavaFXDeployTask extends ConventionTask {
                 classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.allSource.srcDirs)).asPath)
 
         ant.fxDeploy(
-                //width:
-                //height:
+                width: getWidth(),
+                height: getHeight(),
                 outDir: getDistsDir(),
-                embedJNLP: true,
+                embedJNLP: getEmbedJNLP(),
                 outFile: getAppName(),
-                nativeBundles: getPackaging()
+                nativeBundles: getPackaging(),
+                verbose: getVerbose()
+
         ) {
 
             application(
@@ -63,7 +65,7 @@ class JavaFXDeployTask extends ConventionTask {
 
             }
             info(
-                    title: getAppName()
+                title: getAppName()
             )
 
             permissions(elevated: 'true')
@@ -77,6 +79,11 @@ class JavaFXDeployTask extends ConventionTask {
     String appID
     String appName
     String mainClass
+
+    int width = 1024
+    int height = 768
+    boolean embedJNLP = false
+    boolean verbose = false
 
 
     @InputFiles
