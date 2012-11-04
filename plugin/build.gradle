@@ -5,8 +5,8 @@ group = 'com.bitbucket.shemnon.javafxplugin'
 version = '0.0.0-SNAPSHOT'
 
 repositories {
-  //mavenRepo urls:'http://bitbucket somewhere'
-  mavenCentral()
+    //mavenRepo urls:'http://bitbucket somewhere'
+    mavenCentral()
 }
 
 dependencies {
@@ -14,4 +14,23 @@ dependencies {
     compile gradleApi()
     compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            def credentials = [
+                    userName: System.getProperty('deploy.username'),
+                    password: System.getProperty('deploy.password')
+            ]
+            println credentials
+            repository(id: 'cloudbees',
+                    url: uri('https://repository-javafx-gradle-plugin.forge.cloudbees.com/release/'),
+                    authentication: credentials)
+            snapshotRepository(id: 'cloudbees',
+                    url: uri('https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/'),
+                    authentication: credentials)
+        }
+    }
+}
+
 
