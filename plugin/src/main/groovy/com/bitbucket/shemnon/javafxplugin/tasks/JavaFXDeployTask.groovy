@@ -55,8 +55,6 @@ class JavaFXDeployTask extends ConventionTask {
                     id: getAppID(),
                     name: getAppName(),
                     mainClass: getMainClass()
-                    //FIXME preloader
-                    //FIXME fallback
             )
             resources {
                 getInputFiles().filter() { it.file } each {
@@ -65,7 +63,15 @@ class JavaFXDeployTask extends ConventionTask {
 
             }
             info(
-                title: getAppName()
+                title: getAppName(),
+                category: getCategory(),
+                copyright: getCopyright(),
+                description: getDescription(),
+                license: getLicense(),
+                vendor: getVendor()
+            )
+            preferences(
+                createPreferencesAttributes()
             )
 
             permissions(elevated: 'true')
@@ -86,6 +92,19 @@ class JavaFXDeployTask extends ConventionTask {
     boolean verbose = false
 
 
+    // deplpy/info attributes
+    String category
+    String copyright
+    String description
+    String license
+    String vendor
+
+    // deploy/preferences attributes
+    Boolean installSystemWide
+    Boolean menu
+    Boolean shortcut
+
+
     @InputFiles
     FileCollection inputFiles
 
@@ -93,5 +112,18 @@ class JavaFXDeployTask extends ConventionTask {
     @OutputDirectory
     File distsDir
 
+    protected Map createPreferencesAttributes() {
+        def res = [:]
+        if (getInstallSystemWide() != null) {
+            res.install = getInstallSystemWide()
+        }
+        if (getMenu() != null) {
+            res.menu = getMenu()
+        }
+        if (getShortcut() != null) {
+            res.shortcut = getShortcut()
+        }
+        return res
+    }
 
 }
