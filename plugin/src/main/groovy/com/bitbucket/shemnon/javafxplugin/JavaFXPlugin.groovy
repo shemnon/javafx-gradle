@@ -149,7 +149,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 def jfxc = convention.getPlugin(JavaFXPluginConvention);
                 def props = project.properties
                 def mode = props['javafx.signingMode']  ?: jfxc.signingMode
-                return props?."javafx.${mode}Key.$prop" ?: jfxc?."${mode}Key"?.'prop'
+                return props?."javafx.${mode}Key.$prop" ?: jfxc?."${mode}Key"?."$prop"
             }
         }
         task.conventionMapping.keystore  = {convention, aware ->
