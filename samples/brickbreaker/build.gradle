@@ -1,10 +1,1 @@
-apply plugin: 'javafx'
-
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath 'com.bitbucket.shemnon.javafxplugin:plugin:0.0.0-SNAPSHOT'
-    }
-}
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
