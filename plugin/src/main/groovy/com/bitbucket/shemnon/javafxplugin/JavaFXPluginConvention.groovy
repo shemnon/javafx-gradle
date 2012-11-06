@@ -73,12 +73,9 @@ class JavaFXPluginConvention extends BasePluginConvention {
 
 class SigningKeyInfo {
     String alias
-    String dname
-    int validity
     String keypass
     File keystore
     String storepass
-    String storetype
 
 
     public SigningKeyInfo(Closure configure) {

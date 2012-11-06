@@ -61,8 +61,6 @@ class JavaFXPlugin implements Plugin<Project> {
                 packaging = 'all'
                 debugKey {
                     alias = 'javafxdebugkey'
-                    dname = 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug'
-                    validity = ((365.25) * 25 as int) // 25 years
                     keypass = 'JavaFX'
                     keystore = new File(project.projectDir, 'debug.keystore')
                     storepass = 'JavaFX'
@@ -132,11 +130,11 @@ class JavaFXPlugin implements Plugin<Project> {
         def task = project.task("generateDebugKey", description: "Generates the JAvaFX Debug Key", type: GenKeyTask)
 
         task.conventionMapping.alias     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.alias }
-        task.conventionMapping.dname     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.dname }
-        task.conventionMapping.validity  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.validity }
         task.conventionMapping.keypass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keypass }
         task.conventionMapping.keystore  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keystore }
         task.conventionMapping.storepass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storepass }
+        task.conventionMapping.dname     = {convention, aware -> 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug' }
+        task.conventionMapping.validity  = {convention, aware -> ((365.25) * 25 as int) /* 25 years */ }
     }
 
     private configureJavaFXSignJarTask(Project project) {
