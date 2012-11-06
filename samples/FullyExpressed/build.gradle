@@ -1,0 +1,59 @@
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+apply plugin: 'idea'
+
+javafx {
+
+    // you can hand configure these, but I don't
+    //jfxrtJar = file('jfxrt.jar')
+    //antJavaFXJar = file('ant-javafx.jar')
+
+    debugKey {
+        alias = 'buggyKey'
+        keypass = '123456'
+        keystore = file('veryinsecure.jks')
+        storepass = '123456'
+    }
+    releaseKey {
+        alias = 'selfsigned'
+        keypass = 'password'
+        keystore = file('insecure.jks')
+        storepass = 'password'
+    }
+    signingMode = 'release'
+
+    appID = 'FullyExpressed'
+    appName = 'Fully Expressed Build File'
+    mainClass = 'com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheMain'
+
+    packaging = 'image'
+}
+
+generateDebugKey {
+    dname='ou=them'
+    validity=1
+}
+
+jfxDeploy {
+    // applet and webstart stuff
+    width = 800
+    height = 600
+    embedJNLP = false
+
+    // verbose output of the deployment, to the info chanel
+    // it leaves files in the temp dir if set to true
+    verbose = false
+
+
+    // deplpy/info attributes
+    category = 'demo'
+    copyright = 'Copyright (c) 2012 Danno Ferrin'
+    description = '''If it can and ever should be configured, it is configured in this build.
+But really, you should live with the conventions when appropriate.'''
+    license = '3 clause BSD'
+    vendor = 'Me!'
+
+    // deploy/preferences attributes
+    installSystemWide = true
+    menu = true
+    shortcut = true
+}

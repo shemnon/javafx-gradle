@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane id="StackPane" prefHeight="400.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheController">
+  <children>
+    <VBox id="VBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Text id="" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="funnytext" text="Gradle" />
+        <Arc fx:id="pie" fill="#fff500" length="270.0" onRotate="#onRotate" onRotationFinished="#onRotateFinished" onRotationStarted="#onRotateStarted" onSwipeDown="#onSwipeDown" onSwipeLeft="#onSwipeLeft" onSwipeRight="#onSwipeRight" onSwipeUp="#onSwipeUp" onTouchMoved="#onTouchMoved" onTouchPressed="#onTouchPressed" onTouchReleased="#onTouchReleased" onTouchStationary="#onTouchStationary" onZoom="#onZoom" onZoomFinished="#onZoomFinished" onZoomStarted="#onZoomStarted" radiusX="100.0" radiusY="100.0" startAngle="45.0" stroke="BLACK" strokeType="INSIDE" type="ROUND" />
+        <Text id="" scaleY="0.9999920270442658" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="funnytext" text="%hello" />
+      </children>
+    </VBox>
+  </children>
+</StackPane>
