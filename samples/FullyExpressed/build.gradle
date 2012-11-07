@@ -13,11 +13,12 @@ javafx {
         keystore = file('veryinsecure.jks')
         storepass = '123456'
     }
+    // don't get too excited, the release key is overridden by gradle.properties
     releaseKey {
-        alias = 'selfsigned'
-        keypass = 'password'
-        keystore = file('insecure.jks')
-        storepass = 'password'
+        alias = 'imaginary'
+        keypass = 'bad'
+        keystore = file('nonexistant.jks')
+        storepass = 'bad'
     }
     signingMode = 'release'
 
