@@ -1,5 +1,9 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release/javafx.plugin'
 
+if (!JavaVersion.current().isJava8Compatible()) {
+    throw new GradleException("JavaFX 8 required")
+}
+
 javafx {
     mainClass = 'com.javafx.experiments.scheduleapp.ConferenceScheduleApp'
 }
