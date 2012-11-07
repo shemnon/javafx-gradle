@@ -1,4 +1,4 @@
-apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release/javafx.plugin'
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 
 javafx {
     mainClass = 'swinginterop.SwingInterop'
