@@ -33,4 +33,6 @@ task buildSearchIndex(type:JavaExec) {
 }
 
 jfxJar.dependsOn(buildSearchIndex)
+run.dependsOn(buildSearchIndex)
+debug.dependsOn(buildSearchIndex)
 
