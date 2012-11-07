@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'com.bitbucket.shemnon.javafxplugin'
-version = '0.0.0-SNAPSHOT'
+version = '0.0.0'
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ uploadArchives {
                         password deployPassword
                 }
             } catch (MissingPropertyException ignore) {}
-            url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/'
+            url "https://repository-javafx-gradle-plugin.forge.cloudbees.com/${version.endsWith("-SNAPSHOT")?'snapshot':'release'}/"
             //todo swap snapshot/release
         }
     }
