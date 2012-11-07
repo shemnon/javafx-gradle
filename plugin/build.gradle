@@ -18,8 +18,8 @@ uploadArchives {
     repositories {
         ivy {
             credentials {
-                    username deployUsername
-                    password deployPassword
+                    username hasProperty('deployUsername') ? getProperty('deployUsername') : ''
+                    password hasProperty('deployPassword') ? getProperty('deployPassword') : ''
             }
             url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/'
             //todo swap snapshot/release
