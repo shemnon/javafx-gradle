@@ -17,10 +17,12 @@ dependencies {
 uploadArchives {
     repositories {
         ivy {
-            credentials {
-                    username hasProperty('deployUsername') ? getProperty('deployUsername') : ''
-                    password hasProperty('deployPassword') ? getProperty('deployPassword') : ''
-            }
+            try {
+                credentials {
+                        username deployUsername
+                        password deployPassword
+                }
+            } catch (MissingPropertyException ignore) {}
             url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/'
             //todo swap snapshot/release
         }
