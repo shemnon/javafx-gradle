@@ -15,11 +15,9 @@ public class TheController {
     }
     
     public void onRotateFinished(RotateEvent re) {
-        System.out.println(re);
     }
     
     public void onRotateStarted(RotateEvent re) {
-        System.out.println(re);
     }
 
     public void onSwipeDown(SwipeEvent se) {
@@ -63,11 +61,9 @@ public class TheController {
     }
 
     public void onZoomFinished(ZoomEvent ze) {
-        System.out.println(ze);
     }
 
     public void onZoomStarted(ZoomEvent ze) {
-        System.out.println(ze);
     }
 
 
