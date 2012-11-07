@@ -102,6 +102,8 @@ class JavaFXPlugin implements Plugin<Project> {
             project.fileTree(dir: convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir, include: '**/*.css')
         }
 
+        project.tasks.getByName("classes").dependsOn(task)
+        task.dependsOn(project.tasks.getByName("processResources"))
     }
 
     private configureJavaFXJarTask(Project project) {
@@ -121,9 +123,6 @@ class JavaFXPlugin implements Plugin<Project> {
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
             FileCollection output = compileClasspath - providedCompile;
         }
-
-        task.dependsOn(project.tasks.getByName("cssToBin"))
-
     }
 
     private configureGenerateDebugKeyTask(Project project) {
@@ -142,7 +141,7 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
 
-        ['alias', 'keypass', 'storepass', 'storetype'].each { prop ->
+        ['alias', 'keypass', 'storepass', 'keystore'].each { prop ->
             task.conventionMapping[prop]  = {convention, aware ->
                 def jfxc = convention.getPlugin(JavaFXPluginConvention);
                 def props = project.properties
