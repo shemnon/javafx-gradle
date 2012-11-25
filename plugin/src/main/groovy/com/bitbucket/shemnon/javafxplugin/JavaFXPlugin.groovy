@@ -40,6 +40,8 @@ import org.gradle.api.plugins.JavaPlugin
 import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXCSSToBinTask
 import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXSignJarTask
 import com.bitbucket.shemnon.javafxplugin.tasks.GenKeyTask
+import org.gradle.api.DefaultTask
+import org.gradle.api.artifacts.ResolvedArtifact
 
 
 class JavaFXPlugin implements Plugin<Project> {
@@ -85,13 +87,16 @@ class JavaFXPlugin implements Plugin<Project> {
         configureGenerateDebugKeyTask(project)
         configureJavaFXSignJarTask(project)
         configureJFXDeployTask(project)
+        configureScenicViewTask(project)
         configureRunTask(project)
         configureDebugTask(project)
     }
 
 
     private configureJavaFXCSSToBinTask(Project project) {
-        def task = project.task("cssToBin", description: "Converts CSS to Binary CSS", type: JavaFXCSSToBinTask)
+        def task = project.task("cssToBin", type: JavaFXCSSToBinTask,
+                description: "Converts CSS to Binary CSS.",
+                group: 'Build')
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
         task.conventionMapping.jfxrtJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).jfxrtJar }
@@ -107,7 +112,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJavaFXJarTask(Project project) {
-        def task = project.task("jfxJar", description: "Jars up the classes and adds JavaFX specific packaging", type: JavaFXJarTask)
+        def task = project.task("jfxJar", type: JavaFXJarTask,
+                description: "Jars up the classes and adds JavaFX specific packaging.",
+                group: 'Build')
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
 
@@ -126,7 +133,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureGenerateDebugKeyTask(Project project) {
-        def task = project.task("generateDebugKey", description: "Generates the JAvaFX Debug Key", type: GenKeyTask)
+        def task = project.task("generateDebugKey", type: GenKeyTask,
+                description: "Generates the JAvaFX Debug Key.",
+                group: 'Build')
 
         task.conventionMapping.alias     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.alias }
         task.conventionMapping.keypass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keypass }
@@ -137,7 +146,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJavaFXSignJarTask(Project project) {
-        def task = project.task("jfxSignJar", description: "Signs the JavaFX jars the JavaFX way", type: JavaFXSignJarTask)
+        def task = project.task("jfxSignJar", type: JavaFXSignJarTask,
+                description: "Signs the JavaFX jars the JavaFX way.",
+                group: 'Build')
 
         task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
 
@@ -170,7 +181,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJFXDeployTask(Project project) {
-        def task = project.task("jfxDeploy", description: "Processes the JavaFX jars and generates webstart and native packages", type: JavaFXDeployTask)
+        def task = project.task("jfxDeploy", type: JavaFXDeployTask,
+                description: "Processes the JavaFX jars and generates webstart and native packages.",
+                group: 'Build')
 
         task.conventionMapping.packaging = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).packaging }
 
@@ -194,16 +207,46 @@ class JavaFXPlugin implements Plugin<Project> {
     }
     
     private void configureRunTask(Project project) {
-        def run = project.tasks.add("run", JavaExec)
-        run.classpath = project.sourceSets.main.runtimeClasspath
-        run.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        JavaExec task = project.task("run", type: JavaExec,
+            description: 'Runs the application.',
+            group: 'Execution')
+
+        task.classpath = project.sourceSets.main.runtimeClasspath
+        task.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
     }
 
     private void configureDebugTask(Project project) {
-        def debug = project.tasks.add("debug", JavaExec)
-        debug.classpath = project.sourceSets.main.runtimeClasspath
-        debug.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
-        debug.debug = true
+        JavaExec task = project.task("debug", type:JavaExec,
+            description: 'Runs the applicaiton and sets up debugging on port 5005.',
+            group: 'Execution')
+
+        task.classpath = project.sourceSets.main.runtimeClasspath
+        task.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.debug = true
+    }
+
+    private void configureScenicViewTask(Project project) {
+        def task = project.task("scenicview", type: DefaultTask,
+                description: 'Adds the ScenicView agent to all Execution Tasks.',
+                group: 'Tools')
+
+        task.doLast {
+            project.configurations {
+                scenicview
+            }
+            project.repositories {
+                ivy  { url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release' }
+            }
+            project.dependencies {
+                scenicview 'com.fxexperience.scenicview:scenicview:1.3.0'
+            }
+
+            project.tasks.findAll {it.group == 'Execution' && it instanceof JavaExec}.each {JavaExec execTask ->
+                project.configurations.getByName('scenicview').resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact ra ->
+                    execTask.jvmArgs = ["-javaagent:$ra.file.canonicalPath"] + execTask.jvmArgs
+                }
+            }
+        }
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
