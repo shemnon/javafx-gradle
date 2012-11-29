@@ -1,6 +1,7 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 
-if (!JavaVersion.current().isJava8Compatible()) {
+
+if (!JavaVersion.current().contains('8')) { //FIXME not the best way, but cloudbees is on an old version of gradle
     throw new GradleException("JavaFX 8 required")
 }
 
