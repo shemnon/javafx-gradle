@@ -1,6 +1,5 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 
-
 if (!System.getProperty("java.version").matches(/^(1\.)?8.*/)) { //FIXME not the best way, but cloudbees is on an old version of gradle
     throw new GradleException("Java 8 required, ${System.getProperty("java.version")} found")
 }
