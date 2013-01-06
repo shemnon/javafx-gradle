@@ -113,16 +113,15 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Jars up the classes and adds JavaFX specific packaging.",
                 group: 'Build')
 
-        task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
-
         task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
-        task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
 
+        task.conventionMapping.outputDirectory = {convention, aware ->
+            "$project.libsDir" as File}
         task.conventionMapping.outputFile = {convention, aware ->
-            "$project.libsDir/${project.archivesBaseName}.jar" as File}
+            "${project.archivesBaseName}.jar" as File}
 
         task.conventionMapping.inputFiles = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output}
-        task.conventionMapping.resources = {convention, aware ->
+        task.conventionMapping.classpath = {convention, aware ->
             FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
             FileCollection output = compileClasspath - providedCompile;

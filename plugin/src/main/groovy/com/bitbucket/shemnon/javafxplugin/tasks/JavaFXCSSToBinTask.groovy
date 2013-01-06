@@ -41,7 +41,6 @@ class JavaFXCSSToBinTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        PackagerLib packager = new PackagerLib();
 
         CreateBSSParams bssParams = new CreateBSSParams();
         getInputFiles().srcDirTrees.each { DirectoryFileTree dirTree ->
@@ -62,6 +61,7 @@ class JavaFXCSSToBinTask extends ConventionTask {
         }
         bssParams.setOutdir(getDistsDir())
 
+        PackagerLib packager = new PackagerLib();
         packager.generateBSS(bssParams)
     }
 

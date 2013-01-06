@@ -24,13 +24,16 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks;
+package com.bitbucket.shemnon.javafxplugin.tasks
 
-
+import com.sun.javafx.tools.packager.CreateJarParams
+import com.sun.javafx.tools.packager.PackagerLib;
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.SourceSetOutput
 import org.gradle.api.file.FileCollection
 
 /**
@@ -43,44 +46,45 @@ public class JavaFXJarTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        ant.taskdef(name: 'fxJar',
-                classname: 'com.sun.javafx.tools.ant.FXJar',
-                classpath: getAntJavaFXJar().asPath)
+        CreateJarParams createJarParams = new CreateJarParams();
 
-        ant.fxJar(destfile: getOutputFile()) {
+        // hardcodes, fix later
+        createJarParams.embedLauncher = true
+        createJarParams.css2bin = false
 
-            getInputFiles().each {
-                if (it.directory) {
-                    fileset(dir: it)
-                } else if (it.file) {
-                    fileset(file: it)
-                }
-            }
-            application(
-                    name: getAppName(),
-                    mainClass: getMainClass()
-                    //FIXME preloader
-                    //FIXME fallback
-            )
-            ant.resources {
-                getResources().filter { it.file } each {
-                    fileset(file: it)
-                }
-            }
-        }
+        createJarParams.addResource(getInputFiles().getClassesDir(), getInputFiles().getClassesDir())
+        createJarParams.addResource(getInputFiles().getResourcesDir(), getInputFiles().getResourcesDir())
+        //TODO process dirs
+
+        createJarParams.applicationClass = getMainClass()
+        createJarParams.outfile = getOutputFile()
+        createJarParams.outdir = getOutputDirectory()
+
+        createJarParams.classpath = getClasspath().files.collect {it.name}.join ' '
+
+        // not provided, fix later
+        //createJarParams.arguments
+        //createJarParams.manifestAttrs
+        //createJarParams.fxVersion
+        //createJarParams.fallback
+        //createJarParams.preloader
+
+        PackagerLib packager = new PackagerLib();
+        packager.packageAsJar(createJarParams)
+
     }
 
-    FileCollection antJavaFXJar
-
-    String appName
     String mainClass
 
     @OutputFile
     File outputFile
 
-    @InputFiles
-    FileCollection resources
+    @OutputDirectory
+    File outputDirectory
 
     @InputFiles
-    FileCollection inputFiles
+    FileCollection classpath
+
+    @InputFiles
+    SourceSetOutput inputFiles
 }
