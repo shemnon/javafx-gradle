@@ -24,9 +24,10 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks;
+package com.bitbucket.shemnon.javafxplugin.tasks
 
-
+import com.sun.javafx.tools.packager.PackagerLib
+import com.sun.javafx.tools.packager.SignJarParams;
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFiles
@@ -44,44 +45,33 @@ public class JavaFXSignJarTask extends ConventionTask {
     @TaskAction
     processResources() {
 
-        project.mkdir(getDestdir())
+        SignJarParams signJarParams = new SignJarParams();
 
-        ant.taskdef(name: 'fxSignJar',
-                classname: 'com.sun.javafx.tools.ant.FXSignJarTask',
-                classpath: getAntJavaFXJar().asPath)
+        getInputFiles() filter { File f -> f.file && f.name.endsWith(".jar") } each { File f ->
+            signJarParams.addResource(f.parentFile, f);
+        }
 
-
-        ant.fxSignJar(
-                makeAttributes()
-        ) {
-            getInputFiles().filter { it.file && it.name.endsWith(".jar") } each {
-                fileset(file: it)
+        ['alias', 'keyPass', 'keyStore', 'storePass', 'storeType', 'verbose', 'outdir', 'verbose'].each {
+            if (this[it]) {
+                signJarParams[it] = this[it]
             }
         }
+
+        PackagerLib packager = new PackagerLib();
+        packager.signJar(signJarParams)
     }
 
     String alias
-    String keypass
-    File keystore
-    String storepass
-    String storetype
-    String verbose = "true"
-
-    FileCollection antJavaFXJar
+    String keyPass
+    File keyStore
+    String storePass
+    String storeType
+    String verbose = "true" // FIXME hard coded
 
     @OutputDirectory
-    File destdir
+    File outdir
 
     @InputFiles
     FileCollection inputFiles
 
-    private Map makeAttributes() {
-        def result = [:]
-        ['alias', 'keypass', 'keystore', 'storepass', 'storetype', 'verbose', 'destdir', 'verbose'].each {
-            if (this[it]) {
-                result[it] = this[it]
-            }
-        }
-        return result
-    }
 }

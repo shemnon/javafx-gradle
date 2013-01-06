@@ -43,7 +43,7 @@ class GenKeyTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        if (getKeystore().exists()) return
+        if (getKeyStore().exists()) return
 
         ExecAction aaptExec = new DefaultExecAction()
         aaptExec.workingDir = project.projectDir
@@ -51,9 +51,9 @@ class GenKeyTask extends ConventionTask {
 
         def args = []
         args << '-genkeypair'
-        ['alias', 'dname', 'validity', 'keypass', 'keystore', 'storepass'].each {
+        ['alias', 'dname', 'validity', 'keyPass', 'keyStore', 'storePass', 'storeType'].each {
             if (this[it]) {
-                args << "-$it" << this[it] as String
+                args << "-${it.toLowerCase()}" << this[it] as String
             }
         }
 
@@ -62,7 +62,6 @@ class GenKeyTask extends ConventionTask {
         // [-keyalg <keyalg>]
         // [-keysize <keysize>]
         // [-sigalg <sigalg>]
-        // [-storetype <storetype>]
         // [-providername <name>]
         // [-providerclass <provider_class_name> [-providerarg <arg>]] ...
         // [-providerpath <pathlist>]
@@ -75,11 +74,12 @@ class GenKeyTask extends ConventionTask {
     }
 
     @OutputFile
-    File keystore
+    File keyStore
 
     String alias
     String dname
     Integer validity // conventions don't play nice with primitives
-    String keypass
-    String storepass
+    String keyPass
+    String storePass
+    String storeType
 }

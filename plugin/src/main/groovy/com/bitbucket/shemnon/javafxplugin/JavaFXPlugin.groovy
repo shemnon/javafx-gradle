@@ -63,9 +63,9 @@ class JavaFXPlugin implements Plugin<Project> {
                 packaging = 'all'
                 debugKey {
                     alias = 'javafxdebugkey'
-                    keypass = 'JavaFX'
-                    keystore = new File(project.projectDir, 'debug.keystore')
-                    storepass = 'JavaFX'
+                    keyPass = 'JavaFX'
+                    keyStore = new File(project.projectDir, 'debug.keyStore')
+                    storePass = 'JavaFX'
                 }
                 signingMode = 'debug'
             })
@@ -134,9 +134,10 @@ class JavaFXPlugin implements Plugin<Project> {
                 group: 'Build')
 
         task.conventionMapping.alias     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.alias }
-        task.conventionMapping.keypass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keypass }
-        task.conventionMapping.keystore  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keystore }
-        task.conventionMapping.storepass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storepass }
+        task.conventionMapping.keyPass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keyPass }
+        task.conventionMapping.keyStore  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keyStore }
+        task.conventionMapping.storePass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storePass }
+        task.conventionMapping.storeType = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storeType }
         task.conventionMapping.dname     = {convention, aware -> 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug' }
         task.conventionMapping.validity  = {convention, aware -> ((365.25) * 25 as int) /* 25 years */ }
     }
@@ -146,9 +147,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Signs the JavaFX jars the JavaFX way.",
                 group: 'Build')
 
-        task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
-
-        ['alias', 'keypass', 'storepass', 'keystore'].each { prop ->
+        ['alias', 'keyPass', 'storePass', 'storeType'].each { prop ->
             task.conventionMapping[prop]  = {convention, aware ->
                 def jfxc = convention.getPlugin(JavaFXPluginConvention);
                 def props = project.properties
@@ -156,15 +155,15 @@ class JavaFXPlugin implements Plugin<Project> {
                 return props?."javafx.${mode}Key.$prop" ?: jfxc?."${mode}Key"?."$prop"
             }
         }
-        task.conventionMapping.keystore  = {convention, aware ->
+        task.conventionMapping.keyStore  = {convention, aware ->
             def jfxc = convention.getPlugin(JavaFXPluginConvention);
             def props = project.properties
             def mode = props['javafx.signingMode']  ?: jfxc.signingMode
-            String keyFile = props?."javafx.${mode}Key.keystore"
-            return keyFile == null ? jfxc?."${mode}Key"?.keystore : new File(keyFile)
+            String keyFile = props?."javafx.${mode}Key.keyStore"
+            return keyFile == null ? jfxc?."${mode}Key"?.keyStore : new File(keyFile)
         }
 
-        task.conventionMapping.destdir = {convention, aware -> "$project.libsDir/../signed" as File}
+        task.conventionMapping.outdir = {convention, aware -> "$project.libsDir/../signed" as File}
 
         task.conventionMapping.inputFiles = {convention, aware ->
             FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
