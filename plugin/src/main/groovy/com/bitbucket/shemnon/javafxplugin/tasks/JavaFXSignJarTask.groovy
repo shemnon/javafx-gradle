@@ -55,7 +55,6 @@ public class JavaFXSignJarTask extends ConventionTask {
                 makeAttributes()
         ) {
             getInputFiles().filter { it.file && it.name.endsWith(".jar") } each {
-                println it
                 fileset(file: it)
             }
         }
