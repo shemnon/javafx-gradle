@@ -24,11 +24,15 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks;
+package com.bitbucket.shemnon.javafxplugin.tasks
 
-
-import org.gradle.api.file.FileCollection
+import com.sun.javafx.tools.packager.CreateBSSParams
+import com.sun.javafx.tools.packager.PackagerLib
+import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.FileVisitor
+import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.internal.ConventionTask
+import org.gradle.api.internal.file.collections.DirectoryFileTree
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -37,24 +41,32 @@ class JavaFXCSSToBinTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        ant.taskdef(name: 'csstobin',
-                classname: 'com.sun.javafx.tools.ant.CSSToBinTask',
-                classpath: (getAntJavaFXJar() + getJfxrtJar()).asPath)
+        PackagerLib packager = new PackagerLib();
 
-        ant.csstobin(
-                outDir: getDistsDir()
-        ) {
-            getInputFiles().addToAntBuilder(ant, "fileset", FileCollection.AntType.FileSet)
+        CreateBSSParams bssParams = new CreateBSSParams();
+        getInputFiles().srcDirTrees.each { DirectoryFileTree dirTree ->
+            dirTree.visit new FileVisitor() {
+                @Override
+                void visitDir(FileVisitDetails fileVisitDetails) {
+                    // do nothing
+                }
+
+                @Override
+                void visitFile(FileVisitDetails fileVisitDetails) {
+                    File f = fileVisitDetails.getFile();
+                    if (f.getName().endsWith(".css")) {
+                        bssParams.addResource(dirTree.getDir(), f);
+                    }
+                }
+            }
         }
+        bssParams.setOutdir(getDistsDir())
+
+        packager.generateBSS(bssParams)
     }
 
-    FileCollection antJavaFXJar
-    FileCollection jfxrtJar
-
-
-
     @InputFiles
-    FileCollection inputFiles
+    SourceDirectorySet inputFiles
 
     @OutputDirectory
     File distsDir

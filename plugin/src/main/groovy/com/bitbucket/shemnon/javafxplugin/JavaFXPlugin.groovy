@@ -98,13 +98,10 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Converts CSS to Binary CSS.",
                 group: 'Build')
 
-        task.conventionMapping.antJavaFXJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
-        task.conventionMapping.jfxrtJar = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).jfxrtJar }
-
         task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            project.fileTree(dir: convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir, include: '**/*.css')
+            convention.getPlugin(JavaPluginConvention).sourceSets.main.resources
         }
 
         project.tasks.getByName("classes").dependsOn(task)
