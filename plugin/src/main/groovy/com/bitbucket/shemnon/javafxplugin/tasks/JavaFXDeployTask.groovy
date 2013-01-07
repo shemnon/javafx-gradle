@@ -24,8 +24,11 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks;
+package com.bitbucket.shemnon.javafxplugin.tasks
 
+import com.sun.javafx.tools.packager.DeployParams
+import com.sun.javafx.tools.packager.PackagerLib
+import com.sun.javafx.tools.packager.bundlers.Bundler;
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.OutputDirectory
@@ -36,46 +39,90 @@ class JavaFXDeployTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        ant.taskdef(name: 'fxDeploy',
-                classname: 'com.sun.javafx.tools.ant.DeployFXTask',
-                classpath: (getAntJavaFXJar() + project.files(project.sourceSets.'package'.allSource.srcDirs)).asPath)
+        DeployParams deployParams = new DeployParams();
 
-        ant.fxDeploy(
-                width: getWidth(),
-                height: getHeight(),
-                outDir: getDistsDir(),
-                embedJNLP: getEmbedJNLP(),
-                outFile: getAppName(),
-                nativeBundles: getPackaging(),
-                verbose: getVerbose()
+        deployParams.version = getProject().getVersion() // FIXME make a convention property
 
-        ) {
+        // these deploy params are currently not set
+        //java.lang.String preloader;
+        //java.util.List<com.sun.javafx.tools.packager.Param> params;
+        //java.util.List<com.sun.javafx.tools.packager.HtmlParam> htmlParams;
+        //java.util.List<java.lang.String> arguments;
+        //boolean embedCertificates;
+        //java.lang.String updateMode;
+        //boolean isExtension;
+        //boolean isSwingApp;
+        //boolean includeDT;
+        //java.lang.String placeholder;
+        //java.lang.String appId;
+        //boolean offlineAllowed;
+        //java.util.List<com.sun.javafx.tools.ant.Callback> callbacks;
+        //java.util.List<com.sun.javafx.tools.packager.DeployParams.Template> templates;
+        //java.lang.String jrePlatform;
+        //java.lang.String fxPlatform;
+        //java.util.List<java.lang.String> jvmargs;
+        //java.util.Map<java.lang.String,java.lang.String> properties;
+        //java.lang.String fallbackApp;
+        //java.util.List<com.sun.javafx.tools.packager.DeployParams.Icon> icons;
 
-            application(
-                    id: getAppID(),
-                    name: getAppName(),
-                    mainClass: getMainClass()
-            )
-            resources {
-                getInputFiles().filter() { it.file } each {
-                    fileset(file: it)
-                }
 
-            }
-            info(
-                title: getAppName(),
-                category: getCategory(),
-                copyright: getCopyright(),
-                description: getDescription(),
-                license: getLicense(),
-                vendor: getVendor()
-            )
-            preferences(
-                createPreferencesAttributes()
-            )
+        deployParams.width = getWidth()
+        deployParams.height = getHeight()
+        deployParams.setEmbeddedDimensions(getWidth() as String, getHeight() as String) // FIXME make a convention property
+        deployParams.setOutdir(getDistsDir())
+        deployParams.embedJNLP = getEmbedJNLP()
+        deployParams.outfile = getAppName() //FIXME duplicate with app name
+        switch (getPackaging().toLowerCase()) {
+            case "false":
+            case "none":
+                deployParams.bundleType = Bundler.BundleType.NONE
+                deployParams.targetFormat = null
+                break;
+            case "all":
+            case "true":
+                deployParams.bundleType = Bundler.BundleType.ALL
+                deployParams.targetFormat = null
+                break;
+            case "image":
+                deployParams.bundleType = Bundler.BundleType.IMAGE
+                deployParams.targetFormat = null
+                break;
+            case "installer":
+                deployParams.bundleType = Bundler.BundleType.INSTALLER
+                deployParams.targetFormat = null
+                break;
+            default:
+                // assume the packageing is for a specific type
+                deployParams.bundleType = Bundler.BundleType.INSTALLER
+                deployParams.targetFormat = getPackaging()
 
-            permissions(elevated: 'true')
         }
+
+        deployParams.verbose = getVerbose()
+
+        deployParams.id = getAppID()
+        deployParams.appName = getAppName() // FIXME duplicate with title
+        deployParams.applicationClass = getMainClass()
+
+        getInputFiles() each { File f ->
+            deployParams.addResource(f.parentFile, f);
+        }
+
+        deployParams.title = getAppName()
+        deployParams.category = getCategory()
+        deployParams.copyright = getCopyright()
+        deployParams.description = getDescription()
+        deployParams.licenseType = getLicenseType()
+        deployParams.vendor = getVendor()
+
+        deployParams.systemWide = getInstallSystemWide()
+        deployParams.needMenu = getMenu()
+        deployParams.needShortcut = getShortcut()
+
+        deployParams.allPermissions = true //FIXME hardcoded
+
+        PackagerLib packager = new PackagerLib();
+        packager.generateDeploymentPackages(deployParams)
     }
 
     String packaging
@@ -96,7 +143,7 @@ class JavaFXDeployTask extends ConventionTask {
     String category
     String copyright
     String description
-    String license
+    String licenseType
     String vendor
 
     // deploy/preferences attributes
@@ -111,19 +158,5 @@ class JavaFXDeployTask extends ConventionTask {
 
     @OutputDirectory
     File distsDir
-
-    protected Map createPreferencesAttributes() {
-        def res = [:]
-        if (getInstallSystemWide() != null) {
-            res.install = getInstallSystemWide()
-        }
-        if (getMenu() != null) {
-            res.menu = getMenu()
-        }
-        if (getShortcut() != null) {
-            res.shortcut = getShortcut()
-        }
-        return res
-    }
 
 }
