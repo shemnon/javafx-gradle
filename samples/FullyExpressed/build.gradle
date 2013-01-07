@@ -1,4 +1,4 @@
-apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/0.1.0-SNAPSHOT/javafx.plugin'
 apply plugin: 'idea'
 
 javafx {
@@ -46,7 +46,7 @@ jfxDeploy {
     copyright = 'Copyright (c) 2012 Danno Ferrin'
     description = '''If it can and ever should be configured, it is configured in this build.
 But really, you should live with the conventions when appropriate.'''
-    license = '3 clause BSD'
+    licenseType = '3 clause BSD'
     vendor = 'Me!'
 
     // deploy/preferences attributes
