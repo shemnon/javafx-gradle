@@ -148,8 +148,8 @@ class JavaFXDeployTask extends ConventionTask {
 
     // deploy/preferences attributes
     Boolean installSystemWide
-    Boolean menu
-    Boolean shortcut
+    boolean menu
+    boolean shortcut
 
 
     @InputFiles
