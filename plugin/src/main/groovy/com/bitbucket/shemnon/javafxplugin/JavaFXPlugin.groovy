@@ -52,23 +52,25 @@ class JavaFXPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.getPlugins().apply(JavaPlugin)
+        project.extensions.create('javafx', JavaFXPluginExtension)
+
         configureConfigurations(project.configurations)
 
         def jfxrtJarFile = project.files(findJFXJar())
-        project.convention.plugins.javafx = new JavaFXPluginConvention(project, {
-                jfxrtJar = jfxrtJarFile
-                antJavaFXJar = project.files(findAntJavaFXJar())
-                mainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
-                appName = project.name //FIXME capatalize
-                packaging = 'all'
-                debugKey {
-                    alias = 'javafxdebugkey'
-                    keyPass = 'JavaFX'
-                    keyStore = new File(project.projectDir, 'debug.keyStore')
-                    storePass = 'JavaFX'
-                }
-                signingMode = 'debug'
-            })
+        project.javafx {
+            jfxrtJar = jfxrtJarFile
+            antJavaFXJar = project.files(findAntJavaFXJar())
+            mainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
+            appName = project.name //FIXME capatalize
+            packaging = 'all'
+            debugKey {
+                alias = 'javafxdebugkey'
+                keyPass = 'JavaFX'
+                keyStore = new File(project.projectDir, 'debug.keyStore')
+                storePass = 'JavaFX'
+            }
+            signingMode = 'debug'
+        }
 
 
         project.dependencies {
@@ -113,7 +115,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Jars up the classes and adds JavaFX specific packaging.",
                 group: 'Build')
 
-        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
 
         task.conventionMapping.outputDirectory = {convention, aware ->
             "$project.libsDir" as File}
@@ -133,11 +135,11 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Generates the JAvaFX Debug Key.",
                 group: 'Build')
 
-        task.conventionMapping.alias     = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.alias }
-        task.conventionMapping.keyPass   = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keyPass }
-        task.conventionMapping.keyStore  = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.keyStore }
-        task.conventionMapping.storePass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storePass }
-        task.conventionMapping.storeType = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).debugKey.storeType }
+        task.conventionMapping.alias     = {convention, aware -> project.javafx.debugKey.alias }
+        task.conventionMapping.keyPass   = {convention, aware -> project.javafx.debugKey.keyPass }
+        task.conventionMapping.keyStore  = {convention, aware -> project.javafx.debugKey.keyStore }
+        task.conventionMapping.storePass = {convention, aware -> project.javafx.debugKey.storePass }
+        task.conventionMapping.storeType = {convention, aware -> project.javafx.debugKey.storeType }
         task.conventionMapping.dname     = {convention, aware -> 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug' }
         task.conventionMapping.validity  = {convention, aware -> ((365.25) * 25 as int) /* 25 years */ }
     }
@@ -149,14 +151,14 @@ class JavaFXPlugin implements Plugin<Project> {
 
         ['alias', 'keyPass', 'storePass', 'storeType'].each { prop ->
             task.conventionMapping[prop]  = {convention, aware ->
-                def jfxc = convention.getPlugin(JavaFXPluginConvention);
+                def jfxc = project.javafx;
                 def props = project.properties
                 def mode = props['javafx.signingMode']  ?: jfxc.signingMode
                 return props?."javafx.${mode}Key.$prop" ?: jfxc?."${mode}Key"?."$prop"
             }
         }
         task.conventionMapping.keyStore  = {convention, aware ->
-            def jfxc = convention.getPlugin(JavaFXPluginConvention);
+            def jfxc = project.javafx;
             def props = project.properties
             def mode = props['javafx.signingMode']  ?: jfxc.signingMode
             String keyFile = props?."javafx.${mode}Key.keyStore"
@@ -180,21 +182,21 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Processes the JavaFX jars and generates webstart and native packages.",
                 group: 'Build')
 
-        task.conventionMapping.packaging = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).packaging }
+        task.conventionMapping.packaging = {convention, aware -> project.javafx.packaging }
 
         task.conventionMapping.antJavaFXJar = {convention, aware ->
-            convention.getPlugin(JavaFXPluginConvention).antJavaFXJar }
+            project.javafx.antJavaFXJar }
 
-        task.conventionMapping.appID = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appID }
-        task.conventionMapping.appName = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).appName }
-        task.conventionMapping.mainClass = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.conventionMapping.appID = {convention, aware -> project.javafx.appID }
+        task.conventionMapping.appName = {convention, aware -> project.javafx.appName }
+        task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
 
 
         task.conventionMapping.inputFiles = {convention, aware ->
             project.fileTree("$project.libsDir/../signed").include("*.jar")
         }
 
-        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).distsDir }
+        task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
 
         task.dependsOn(project.tasks.getByName("jfxSignJar"))
         project.tasks.getByName("assemble").dependsOn(task)
@@ -207,7 +209,7 @@ class JavaFXPlugin implements Plugin<Project> {
             group: 'Execution')
 
         task.classpath = project.sourceSets.main.runtimeClasspath
-        task.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
     }
 
     private void configureDebugTask(Project project) {
@@ -216,7 +218,7 @@ class JavaFXPlugin implements Plugin<Project> {
             group: 'Execution')
 
         task.classpath = project.sourceSets.main.runtimeClasspath
-        task.conventionMapping.main = {convention, aware -> convention.getPlugin(JavaFXPluginConvention).mainClass }
+        task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
         task.debug = true
     }
 

@@ -31,7 +31,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.Project
 
-class JavaFXPluginConvention extends BasePluginConvention {
+class JavaFXPluginExtension { //extends BasePluginConvention {
 
     // preliminaries
     FileCollection jfxrtJar
@@ -50,12 +50,6 @@ class JavaFXPluginConvention extends BasePluginConvention {
 
     String packaging
 
-    // results
-    public JavaFXPluginConvention(Project newProject, Closure configure) {
-        super(newProject)
-        ConfigureUtil.configure(configure, this)
-    }
-
     public debugKey(Closure closure) {
         debugKey = new SigningKeyInfo(closure)
     }
@@ -64,10 +58,6 @@ class JavaFXPluginConvention extends BasePluginConvention {
         releaseKey = new SigningKeyInfo(closure)
     }
 
-    def javafx(Closure closure) {
-        closure.delegate = this
-        closure()
-    }
 
 }
 
