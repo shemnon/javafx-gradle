@@ -1,6 +1,14 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 apply plugin: 'idea'
 
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.jfxtras:jfxtras-labs:2.2-r4'
+}
+
 javafx {
 
     debugKey {
