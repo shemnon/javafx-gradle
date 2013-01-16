@@ -12,19 +12,49 @@ dependencies {
     groovy 'org.codehaus.groovy:groovy-all:2.0.5'
     compile gradleApi()
     compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
+    compile files("${System.properties['java.home']}/lib/jfxrt.jar")
 }
 
 uploadArchives {
     repositories {
-        ivy {
-            try {
-                credentials {
-                        username deployUsername
-                        password deployPassword
-                }
-            } catch (MissingPropertyException ignore) {}
-            url "https://repository-javafx-gradle-plugin.forge.cloudbees.com/${version.endsWith("-SNAPSHOT")?'snapshot':'release'}/"
-            //todo swap snapshot/release
+        mavenDeployer {
+            repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/plugin/",
+                id: 'bintray-shemnon-javafx-gradle-plugin'
+            ) {
+                authentication(
+                        userName: bintrayUserName,
+                        password: bintrayApiKey
+                )
+            }
+            snapshotRepository (url: "https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/",
+                id: 'cloudbees-javafx-gradle-plugin'
+            ) {
+                authentication(
+                        userName: cloudbeesUserName,
+                        password: cloudbeesPassword
+                )
+            }
+        }
+    }
+}
+
+[install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured {pom ->
+    pom.project {
+        dependencies {
+            dependency {
+                groupId 'net.java.openjdk'
+                artifactId 'jfxrt'
+                version '8b72'
+                scope 'system'
+                systemPath '${java.home}/lib/jfxrt.jar'
+            }
+            dependency {
+                groupId 'net.java.openjdk'
+                artifactId 'ant-javafx'
+                version '8b72'
+                scope 'system'
+                systemPath '${java.home}/../lib/ant-javafx.jar'
+            }
         }
     }
 }
