@@ -27,6 +27,7 @@
 package com.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.DeployParams
+import com.sun.javafx.tools.packager.DeployParams.RunMode;
 import com.sun.javafx.tools.packager.PackagerLib
 import com.sun.javafx.tools.packager.bundlers.Bundler;
 import org.gradle.api.tasks.InputFiles
@@ -49,13 +50,11 @@ class JavaFXDeployTask extends ConventionTask {
         //java.util.List<com.sun.javafx.tools.packager.HtmlParam> htmlParams;
         //java.util.List<java.lang.String> arguments;
         //boolean embedCertificates;
-        //java.lang.String updateMode;
         //boolean isExtension;
         //boolean isSwingApp;
         //boolean includeDT;
         //java.lang.String placeholder;
         //java.lang.String appId;
-        //boolean offlineAllowed;
         //java.util.List<com.sun.javafx.tools.ant.Callback> callbacks;
         //java.util.List<com.sun.javafx.tools.packager.DeployParams.Template> templates;
         //java.lang.String jrePlatform;
@@ -97,7 +96,7 @@ class JavaFXDeployTask extends ConventionTask {
                 deployParams.targetFormat = getPackaging()
 
         }
-
+	
         deployParams.verbose = getVerbose()
 
         deployParams.id = getAppID()
@@ -121,6 +120,11 @@ class JavaFXDeployTask extends ConventionTask {
 
         deployParams.allPermissions = true //FIXME hardcoded
 
+	deployParams.updateMode = getUpdateMode()
+	deployParams.offlineAllowed = getOfflineAllowed()
+	deployParams.codebase = getCodebase()
+	deployParams.addIcon(getIconHref(), getIconKind(), getIconWidth(), getIconHeight(), getIconDepth(), RunMode.WEBSTART);
+
         PackagerLib packager = new PackagerLib();
         packager.generateDeploymentPackages(deployParams)
     }
@@ -137,7 +141,14 @@ class JavaFXDeployTask extends ConventionTask {
     int height = 768
     boolean embedJNLP = false
     boolean verbose = false
-
+    String updateMode = "background"
+    boolean offlineAllowed = true
+    String codebase
+    String iconHref
+    String iconKind
+    int iconWidth = 48
+    int iconHeight = 48
+    int iconDepth = 8
 
     // deplpy/info attributes
     String category
@@ -151,12 +162,10 @@ class JavaFXDeployTask extends ConventionTask {
     boolean menu
     boolean shortcut
 
-
     @InputFiles
     FileCollection inputFiles
 
 
     @OutputDirectory
     File distsDir
-
 }
