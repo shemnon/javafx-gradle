@@ -21,18 +21,26 @@ uploadArchives {
             repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/plugin/",
                 id: 'bintray-shemnon-javafx-gradle-plugin'
             ) {
-                authentication(
+                try {
+                    authentication(
                         userName: bintrayUserName,
                         password: bintrayApiKey
-                )
+                    )
+                } catch (MissingPropertyException pne) {
+                    // ignore, don't authenticate
+                }
             }
             snapshotRepository (url: "https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/",
                 id: 'cloudbees-javafx-gradle-plugin'
             ) {
-                authentication(
+                try {
+                    authentication(
                         userName: cloudbeesUserName,
                         password: cloudbeesPassword
-                )
+                    )
+                } catch (MissingPropertyException pne) {
+                    // ignore, don't authenticate
+                }
             }
         }
     }
