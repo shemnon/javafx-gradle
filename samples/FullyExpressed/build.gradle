@@ -61,4 +61,22 @@ But really, you should live with the conventions when appropriate.'''
     installSystemWide = true
     menu = true
     shortcut = true
+
+    codebase = 'http://example.com/bogus/JNLP/Codebase'
+    icon {
+        href = 'src/main/resources/javafx-icon.png'
+        kind = 'default'
+        width = 128
+        height = 128
+        depth = 8
+        mode = 'ALL'
+    }
+    icon {
+        href = 'src/main/resources/javafx-icon.png'
+        kind = 'shortcut'
+        width = 128
+        height = 128
+        depth = 8
+        mode = 'ALL'
+    }
 }

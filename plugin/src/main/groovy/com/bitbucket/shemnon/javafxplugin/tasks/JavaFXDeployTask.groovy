@@ -27,6 +27,7 @@
 package com.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.DeployParams
+import com.sun.javafx.tools.packager.DeployParams.RunMode;
 import com.sun.javafx.tools.packager.PackagerLib
 import com.sun.javafx.tools.packager.bundlers.Bundler;
 import org.gradle.api.tasks.InputFiles
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.file.FileCollection
+import org.gradle.util.ConfigureUtil
 
 class JavaFXDeployTask extends ConventionTask {
 
@@ -49,13 +51,11 @@ class JavaFXDeployTask extends ConventionTask {
         //java.util.List<com.sun.javafx.tools.packager.HtmlParam> htmlParams;
         //java.util.List<java.lang.String> arguments;
         //boolean embedCertificates;
-        //java.lang.String updateMode;
         //boolean isExtension;
         //boolean isSwingApp;
         //boolean includeDT;
         //java.lang.String placeholder;
         //java.lang.String appId;
-        //boolean offlineAllowed;
         //java.util.List<com.sun.javafx.tools.ant.Callback> callbacks;
         //java.util.List<com.sun.javafx.tools.packager.DeployParams.Template> templates;
         //java.lang.String jrePlatform;
@@ -97,7 +97,7 @@ class JavaFXDeployTask extends ConventionTask {
                 deployParams.targetFormat = getPackaging()
 
         }
-
+        
         deployParams.verbose = getVerbose()
 
         deployParams.id = getAppID()
@@ -121,8 +121,26 @@ class JavaFXDeployTask extends ConventionTask {
 
         deployParams.allPermissions = true //FIXME hardcoded
 
+        deployParams.updateMode = getUpdateMode()
+        deployParams.offlineAllowed = getOfflineAllowed()
+        for (IconInfo ii : icons) {
+            deployParams.addIcon(ii.href, ii.kind, ii.width, ii.height, ii.depth, ii.mode);
+        }
+        if (getCodebase() != null) {
+            try {
+                deployParams.codebase = getCodebase()
+            } catch (MissingPropertyException moe) {
+                getLogger().error("JavaFXDeployTask.codebase is only available in JavaFX 8 or later, codebase setting is ignored")
+            }
+        }
+
+
         PackagerLib packager = new PackagerLib();
         packager.generateDeploymentPackages(deployParams)
+    }
+
+    def icon(Closure closure) {
+         icons.add(new IconInfo(closure))
     }
 
     String packaging
@@ -131,13 +149,16 @@ class JavaFXDeployTask extends ConventionTask {
 
     String appID
     String appName
-    String mainClass
 
+    boolean verbose = false
+
+    String mainClass
     int width = 1024
     int height = 768
     boolean embedJNLP = false
-    boolean verbose = false
-
+    String updateMode = "background"
+    boolean offlineAllowed = true
+    String codebase
 
     // deplpy/info attributes
     String category
@@ -145,12 +166,12 @@ class JavaFXDeployTask extends ConventionTask {
     String description
     String licenseType
     String vendor
+    List<IconInfo> icons = []
 
     // deploy/preferences attributes
     Boolean installSystemWide
     boolean menu
     boolean shortcut
-
 
     @InputFiles
     FileCollection inputFiles
@@ -158,5 +179,18 @@ class JavaFXDeployTask extends ConventionTask {
 
     @OutputDirectory
     File distsDir
+}
 
+class IconInfo {
+    String href
+    String kind = 'default'
+    int width = DeployParams.Icon.UNDEFINED
+    int height = DeployParams.Icon.UNDEFINED
+    int depth = DeployParams.Icon.UNDEFINED
+    RunMode mode = RunMode.ALL
+
+
+    public IconInfo(Closure configure) {
+        ConfigureUtil.configure(configure, this)
+    }
 }
