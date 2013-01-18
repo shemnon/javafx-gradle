@@ -50,6 +50,10 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
 
     String packaging
 
+    List<String> jvmArgs = []
+    Map<String, String> systemProperties = [:]
+    List<String> arguments = []
+
     public debugKey(Closure closure) {
         debugKey = new SigningKeyInfo(closure)
     }

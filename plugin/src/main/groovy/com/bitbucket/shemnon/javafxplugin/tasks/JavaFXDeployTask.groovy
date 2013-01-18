@@ -134,6 +134,9 @@ class JavaFXDeployTask extends ConventionTask {
             }
         }
 
+        jvmArgs.each { deployParams.addJvmArg(it) }
+        systemProperties.each {k, v -> deployParams.addJvmProperty(k, v)}
+        deployParams.arguments = arguments
 
         PackagerLib packager = new PackagerLib();
         packager.generateDeploymentPackages(deployParams)
@@ -159,6 +162,10 @@ class JavaFXDeployTask extends ConventionTask {
     String updateMode = "background"
     boolean offlineAllowed = true
     String codebase
+
+    List<String> jvmArgs = []
+    Map<String, String> systemProperties = [:]
+    List<String> arguments = []
 
     // deplpy/info attributes
     String category

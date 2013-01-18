@@ -198,6 +198,10 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
 
+        task.conventionMapping.jvmArgs = {convention, aware -> project.javafx.jvmArgs }
+        task.conventionMapping.systemProperties = {convention, aware -> project.javafx.systemProperties }
+        task.conventionMapping.arguments = {convention, aware -> project.javafx.arguments}
+
         task.dependsOn(project.tasks.getByName("jfxSignJar"))
         project.tasks.getByName("assemble").dependsOn(task)
         project.tasks.getByName("jar").enabled = false
@@ -210,6 +214,11 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.classpath = project.sourceSets.main.runtimeClasspath
         task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
+        task.doFirst {
+            task.jvmArgs project.javafx.jvmArgs
+            task.systemProperties project.javafx.systemProperties
+            if (!task.args) task.args = project.javafx.arguments
+        }
     }
 
     private void configureDebugTask(Project project) {
@@ -219,6 +228,11 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.classpath = project.sourceSets.main.runtimeClasspath
         task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
+        task.doFirst {
+            task.jvmArgs project.javafx.jvmArgs
+            task.systemProperties project.javafx.systemProperties
+            if (!task.args) task.args = project.javafx.arguments
+        }
         task.debug = true
     }
 
