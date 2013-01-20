@@ -1,1 +1,1 @@
-include 'plugin'
+include 'gradle-javafx-plugin'
