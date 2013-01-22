@@ -28,7 +28,7 @@ javafx {
 
     appID 'FullyExpressed'
     appName 'Fully Expressed Build File'
-    mainClass 'com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheMain'
+    mainClass 'TheMain'
 
     packaging 'installer'
 

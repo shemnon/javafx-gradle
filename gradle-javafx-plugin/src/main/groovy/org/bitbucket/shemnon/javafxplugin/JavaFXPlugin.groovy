@@ -24,12 +24,12 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin
+package org.bitbucket.shemnon.javafxplugin
 
 import org.gradle.api.Project
 import org.gradle.api.Plugin
-import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXDeployTask
-import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXJarTask
+import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXDeployTask
+import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXJarTask
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
@@ -37,9 +37,9 @@ import org.gradle.api.tasks.JavaExec
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
-import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXCSSToBinTask
-import com.bitbucket.shemnon.javafxplugin.tasks.JavaFXSignJarTask
-import com.bitbucket.shemnon.javafxplugin.tasks.GenKeyTask
+import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXCSSToBinTask
+import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXSignJarTask
+import org.bitbucket.shemnon.javafxplugin.tasks.GenKeyTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ResolvedArtifact
 

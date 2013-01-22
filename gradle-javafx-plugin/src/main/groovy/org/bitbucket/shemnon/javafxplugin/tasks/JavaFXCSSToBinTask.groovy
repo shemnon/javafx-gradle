@@ -24,7 +24,7 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks
+package org.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.CreateBSSParams
 import com.sun.javafx.tools.packager.PackagerLib

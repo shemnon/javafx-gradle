@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012, Danno Ferrin
+ * Copyright (c) 2012, Danno Ferrin
  *   All rights reserved.
  *
  *   Redistribution and use in source and binary forms, with or without
@@ -24,62 +24,67 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin.tasks;
+package org.bitbucket.shemnon.javafxplugin.tasks
 
+import com.sun.javafx.tools.packager.CreateJarParams
+import com.sun.javafx.tools.packager.PackagerLib;
 import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.ExecResult
-import org.gradle.process.internal.DefaultExecAction
-import org.gradle.process.internal.ExecAction
+import org.gradle.api.tasks.SourceSetOutput
+import org.gradle.api.file.FileCollection
 
 /**
  * Created by IntelliJ IDEA.
  * User: dannoferrin
- * Date: 3/8/11
- * Time: 9:07 PM
+ * Date: 3/5/11
+ * Time: 7:18 AM
  */
-class GenKeyTask extends ConventionTask {
+public class JavaFXJarTask extends ConventionTask {
 
     @TaskAction
     processResources() {
-        if (getKeyStore().exists()) return
+        CreateJarParams createJarParams = new CreateJarParams();
 
-        ExecAction aaptExec = new DefaultExecAction()
-        aaptExec.workingDir = project.projectDir
-        aaptExec.executable = "${System.properties['java.home']}/bin/keytool"
+        // hardcodes, fix later
+        createJarParams.embedLauncher = true
+        createJarParams.css2bin = false
 
-        def args = []
-        args << '-genkeypair'
-        ['alias', 'dname', 'validity', 'keyPass', 'keyStore', 'storePass', 'storeType'].each {
-            if (this[it]) {
-                args << "-${it.toLowerCase()}" << this[it] as String
-            }
-        }
+        createJarParams.addResource(getInputFiles().getClassesDir(), getInputFiles().getClassesDir())
+        createJarParams.addResource(getInputFiles().getResourcesDir(), getInputFiles().getResourcesDir())
+        //TODO process dirs
 
-        // [-v]
-        // [-protected]
-        // [-keyalg <keyalg>]
-        // [-keysize <keysize>]
-        // [-sigalg <sigalg>]
-        // [-providername <name>]
-        // [-providerclass <provider_class_name> [-providerarg <arg>]] ...
-        // [-providerpath <pathlist>]
+        createJarParams.applicationClass = getMainClass()
+        createJarParams.outfile = getOutputFile()
+        createJarParams.outdir = getOutputDirectory()
 
+        createJarParams.classpath = getClasspath().files.collect {it.name}.join ' '
 
-        aaptExec.args = args
+        // not provided, fix later
+        //createJarParams.arguments
+        //createJarParams.manifestAttrs
+        //createJarParams.fxVersion
+        //createJarParams.fallback
+        //createJarParams.preloader
 
-        ExecResult exec = aaptExec.execute()
-        exec.assertNormalExitValue()
+        PackagerLib packager = new PackagerLib();
+        packager.packageAsJar(createJarParams)
+
     }
 
-    @OutputFile
-    File keyStore
+    String mainClass
 
-    String alias
-    String dname
-    Integer validity // conventions don't play nice with primitives
-    String keyPass
-    String storePass
-    String storeType
+    @OutputFile
+    File outputFile
+
+    @OutputDirectory
+    File outputDirectory
+
+    @InputFiles
+    FileCollection classpath
+
+    @InputFiles
+    SourceSetOutput inputFiles
 }

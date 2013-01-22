@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane id="StackPane" prefHeight="600.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheController">
+<StackPane id="StackPane" prefHeight="600.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="org.bitbucket.shemnon.jfx.sample.fullyexpressed.TheController">
   <children>
     <VBox id="VBox" fx:id="VBox" alignment="CENTER" spacing="5.0">
       <children>

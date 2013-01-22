@@ -24,61 +24,54 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.bitbucket.shemnon.javafxplugin
+package org.bitbucket.shemnon.javafxplugin.tasks
 
-import org.gradle.util.ConfigureUtil
+import com.sun.javafx.tools.packager.PackagerLib
+import com.sun.javafx.tools.packager.SignJarParams;
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.BasePluginConvention
-import org.gradle.api.Project
+import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.OutputDirectory
 
-class JavaFXPluginExtension { //extends BasePluginConvention {
+/**
+ * Created by IntelliJ IDEA.
+ * User: dannoferrin
+ * Date: 3/5/11
+ * Time: 7:18 AM
+ */
+public class JavaFXSignJarTask extends ConventionTask {
 
-    // preliminaries
-    FileCollection jfxrtJar
-    FileCollection antJavaFXJar
+    @TaskAction
+    processResources() {
 
-    // build steps
-    SigningKeyInfo debugKey
-    SigningKeyInfo releaseKey
+        SignJarParams signJarParams = new SignJarParams();
 
-    String signingMode
+        getInputFiles() filter { File f -> f.file && f.name.endsWith(".jar") } each { File f ->
+            signJarParams.addResource(f.parentFile, f);
+        }
 
-    // app info
-    String appID
-    String appName
-    String mainClass
+        ['alias', 'keyPass', 'keyStore', 'storePass', 'storeType', 'verbose', 'outdir', 'verbose'].each {
+            if (this[it]) {
+                signJarParams[it] = this[it]
+            }
+        }
 
-    String packaging
-
-    List<String> jvmArgs = []
-    Map<String, String> systemProperties = [:]
-    List<String> arguments = []
-
-    public debugKey(Closure closure) {
-        debugKey = new SigningKeyInfo(closure)
+        PackagerLib packager = new PackagerLib();
+        packager.signJar(signJarParams)
     }
 
-    public releaseKey(Closure closure) {
-        releaseKey = new SigningKeyInfo(closure)
-    }
-
-
-}
-
-class SigningKeyInfo {
     String alias
     String keyPass
     File keyStore
     String storePass
     String storeType
+    String verbose = "true" // FIXME hard coded
 
+    @OutputDirectory
+    File outdir
 
-    public SigningKeyInfo(Closure configure) {
-        ConfigureUtil.configure(configure, this)
-    }
+    @InputFiles
+    FileCollection inputFiles
 
-    //TODO logic methods
-    //   - determine if a key exists
-    //   - load stuff like validity and dname from existing key
-    //   - prompt for password if set to null on a read
 }

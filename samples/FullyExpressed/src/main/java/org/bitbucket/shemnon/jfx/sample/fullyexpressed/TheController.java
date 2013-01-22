@@ -1,4 +1,4 @@
-package com.bitbucket.shemnon.jfx.sample.fullyexpressed;
+package org.bitbucket.shemnon.jfx.sample.fullyexpressed;
 
 import javafx.scene.input.RotateEvent;
 import javafx.scene.input.SwipeEvent;
