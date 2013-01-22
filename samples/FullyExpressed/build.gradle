@@ -24,13 +24,13 @@ javafx {
         keyStore = file('nonexistant.jks')
         storePass = 'bad'
     }
-    signingMode = 'release'
+    signingMode 'release'
 
-    appID = 'FullyExpressed'
-    appName = 'Fully Expressed Build File'
-    mainClass = 'com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheMain'
+    appID 'FullyExpressed'
+    appName 'Fully Expressed Build File'
+    mainClass 'com.bitbucket.shemnon.jfx.sample.fullyexpressed.TheMain'
 
-    packaging = 'image'
+    packaging 'installer'
 
 
     jvmArgs = ['-XX:+AggressiveOpts', '-XX:CompileThreshold=1']
@@ -70,18 +70,58 @@ But really, you should live with the conventions when appropriate.'''
     codebase = 'http://example.com/bogus/JNLP/Codebase'
     icon {
         href = 'src/main/resources/javafx-icon.png'
-        kind = 'default'
+        kind = 'volume'
         width = 128
         height = 128
-        depth = 8
-        mode = 'ALL'
+    }
+
+    icon {
+        href = 'shortcut-16.png'
+        kind = 'shortcut'
+        width = 16
+        height = 16
+        scale = 1
     }
     icon {
-        href = 'src/main/resources/javafx-icon.png'
+        href = "$buildDir/resources/package/shortcut-16@2x.png"
+        kind = 'shortcut'
+        width = 16
+        height = 16
+        scale = 2
+    }
+    icon {
+        href = "$buildDir/resources/package/shortcut-32.png"
+        kind = 'shortcut'
+        width = 32
+        height = 32
+        scale = 1
+    }
+    icon {
+        href = "shortcut-32@2x.png"
+        kind = 'shortcut'
+        width = 32
+        height = 32
+        scale = 2
+    }
+    icon {
+        href = 'shortcut-128.png'
         kind = 'shortcut'
         width = 128
         height = 128
-        depth = 8
-        mode = 'ALL'
+        scale = 1
+    }
+    icon {
+        href = "$buildDir/resources/package/shortcut-128@2x.png"
+        kind = 'shortcut'
+        width = 128
+        height = 128
+        scale = 2
+    }
+    icon {
+        href = "$buildDir/resources/package/shortcut-256.png"
+        kind = 'shortcut'
+        width = 256
+        height = 256
+        scale = 1
     }
 }

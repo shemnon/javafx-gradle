@@ -27,9 +27,12 @@
 package com.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.DeployParams
-import com.sun.javafx.tools.packager.DeployParams.RunMode;
+import com.sun.javafx.tools.packager.DeployParams.RunMode
+import com.sun.javafx.tools.packager.Log;
 import com.sun.javafx.tools.packager.PackagerLib
-import com.sun.javafx.tools.packager.bundlers.Bundler;
+import com.sun.javafx.tools.packager.bundlers.Bundler
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.OutputDirectory
@@ -38,6 +41,50 @@ import org.gradle.api.file.FileCollection
 import org.gradle.util.ConfigureUtil
 
 class JavaFXDeployTask extends ConventionTask {
+
+
+    String packaging
+
+    FileCollection antJavaFXJar
+
+    String appID
+    String appName
+
+    boolean verbose = false
+
+    String mainClass
+    int width = 1024
+    int height = 768
+    boolean embedJNLP = false
+    String updateMode = "background"
+    boolean offlineAllowed = true
+    String codebase
+
+    List<String> jvmArgs = []
+    Map<String, String> systemProperties = [:]
+    List<String> arguments = []
+
+    // deplpy/info attributes
+    String category
+    String copyright
+    String description
+    String licenseType
+    String vendor
+    List<IconInfo> icons = []
+
+    // deploy/preferences attributes
+    Boolean installSystemWide
+    boolean menu
+    boolean shortcut
+
+    @InputFiles
+    FileCollection inputFiles
+
+    @InputDirectory
+    File resourcesDir
+
+    @OutputDirectory
+    File distsDir
 
     @TaskAction
     processResources() {
@@ -97,7 +144,7 @@ class JavaFXDeployTask extends ConventionTask {
                 deployParams.targetFormat = getPackaging()
 
         }
-        
+
         deployParams.verbose = getVerbose()
 
         deployParams.id = getAppID()
@@ -138,54 +185,103 @@ class JavaFXDeployTask extends ConventionTask {
         systemProperties.each {k, v -> deployParams.addJvmProperty(k, v)}
         deployParams.arguments = arguments
 
+        File packageResourcesOutput = project.sourceSets['package'].output.resourcesDir
+        processIcons(packageResourcesOutput)
+
+        // hack
+        deployParams.class.classLoader.addURL(packageResourcesOutput.parentFile.toURI().toURL())
+
+
         PackagerLib packager = new PackagerLib();
+        Log.setLogger(new Log.Logger(getVerbose()) {
+            @Override
+            void info(String msg) {
+                getLogger().info(msg)
+            }
+
+            @Override
+            void verbose(String msg) {
+                if (getVerbose()) {
+                    info(msg)
+                } else {
+                    debug(msg)
+                }
+            }
+
+            @Override
+            void debug(String msg) {
+                getLogger().debug(msg)
+            }
+        })
+
         packager.generateDeploymentPackages(deployParams)
+        Log.setLogger(null)
     }
 
     def icon(Closure closure) {
          icons.add(new IconInfo(closure))
     }
 
-    String packaging
 
-    FileCollection antJavaFXJar
+    protected void processIcons(File destination) {
+        if (Os.isFamily(Os.FAMILY_MAC)) {
+            processMacIcons(destination);
+        }
+    }
 
-    String appID
-    String appName
+    protected void processMacIcons(File destination) {
+        processMacIcons('shortcut',
+                new File(destination, "macosx/${project.javafx.appName}.icns"))
+        processMacIcons('volume',
+                new File(destination, "macosx/${project.javafx.appName}-volume.icns"))
+    }
 
-    boolean verbose = false
+    def macIcnsSizes = [16,32,128,256,512]
+    protected void processMacIcons(String kind, File iconLocation) {
+        // get explicit
+        def dest = "$project.buildDir/icons/${kind}.iconset"
+        project.mkdir(dest)
+        boolean createIcon = false
+        for (IconInfo ii : icons) {
+            if (kind == ii.kind) {
+                if (ii.width != ii.height) {
+                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height")
+                    continue;
+                }
+                if (ii.scale != 1 && ii.scale != 2) {
+                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it has an invalid scale")
+                    continue;
+                }
+                int index = macIcnsSizes.indexOf(ii.height)
+                if (index == -1) {
+                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it is an unsupported dimension.  $macIcnsSizes dimensions are supported")
+                    continue;
+                }
+                File file = project.file(ii.href)
+                if (!file.exists()) {
+                    // try to resolve relative to output
+                    file = new File(getResourcesDir(), ii.href)
+                }
+                if (!file.isFile()) {
+                    logger.error("Icon $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is a directory.")
+                    continue;
+                }
 
-    String mainClass
-    int width = 1024
-    int height = 768
-    boolean embedJNLP = false
-    String updateMode = "background"
-    boolean offlineAllowed = true
-    String codebase
+                ant.copy(file: file, toFile: "$dest/icon_${ii.width}x${ii.height}${ii.scale == 2 ? '@2x': ''}.png")
+                createIcon = true
+            }
 
-    List<String> jvmArgs = []
-    Map<String, String> systemProperties = [:]
-    List<String> arguments = []
+        }
+        if (createIcon) {
+            project.exec {
+                executable 'iconutil'
+                args ('--convert', 'icns', dest)
+            }
+            ant.copy(file: "$project.buildDir/icons/${kind}.icns", toFile: iconLocation)
+        }
 
-    // deplpy/info attributes
-    String category
-    String copyright
-    String description
-    String licenseType
-    String vendor
-    List<IconInfo> icons = []
+    }
 
-    // deploy/preferences attributes
-    Boolean installSystemWide
-    boolean menu
-    boolean shortcut
-
-    @InputFiles
-    FileCollection inputFiles
-
-
-    @OutputDirectory
-    File distsDir
 }
 
 class IconInfo {
@@ -194,6 +290,7 @@ class IconInfo {
     int width = DeployParams.Icon.UNDEFINED
     int height = DeployParams.Icon.UNDEFINED
     int depth = DeployParams.Icon.UNDEFINED
+    double scale = 1 // for retina
     RunMode mode = RunMode.ALL
 
 

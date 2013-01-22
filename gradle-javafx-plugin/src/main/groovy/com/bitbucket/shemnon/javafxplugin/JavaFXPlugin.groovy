@@ -79,7 +79,7 @@ class JavaFXPlugin implements Plugin<Project> {
         project.sourceSets {
             'package' {
                 resources {
-                    srcDir 'src/main'
+                    srcDir 'src/deploy/package'
                 }
             }
         }
@@ -195,6 +195,9 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.inputFiles = {convention, aware ->
             project.fileTree("$project.libsDir/../signed").include("*.jar")
         }
+        task.conventionMapping.resourcesDir = { convention, aware ->
+            project.sourceSets['package'].output.resourcesDir
+        }
 
         task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
 
@@ -203,6 +206,8 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.arguments = {convention, aware -> project.javafx.arguments}
 
         task.dependsOn(project.tasks.getByName("jfxSignJar"))
+        task.dependsOn(project.tasks.getByName("packageClasses"))
+
         project.tasks.getByName("assemble").dependsOn(task)
         project.tasks.getByName("jar").enabled = false
     }
