@@ -18,7 +18,7 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/gradle-javafx-plugin/",
+            repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/plugin/",
                 id: 'bintray-shemnon-javafx-gradle-plugin'
             ) {
                 try {
