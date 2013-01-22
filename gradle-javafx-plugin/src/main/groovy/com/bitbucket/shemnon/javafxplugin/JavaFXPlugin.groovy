@@ -196,7 +196,9 @@ class JavaFXPlugin implements Plugin<Project> {
             project.fileTree("$project.libsDir/../signed").include("*.jar")
         }
         task.conventionMapping.resourcesDir = { convention, aware ->
-            project.sourceSets['package'].output.resourcesDir
+            def rd = project.sourceSets['package'].output.resourcesDir
+            if (!rd.exists()) rd.mkdirs()
+            rd
         }
 
         task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
