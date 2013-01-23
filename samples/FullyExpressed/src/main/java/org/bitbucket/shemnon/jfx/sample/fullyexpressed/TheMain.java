@@ -15,7 +15,7 @@ public class TheMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setResources(ResourceBundle.getBundle("org.bitbucket.shemnon.jfx.sample.fullyexpressed.TheResources"));
+        fxmlLoader.setResources(ResourceBundle.getBundle("org.bitbucket.shemnon.jfx.sample.fullyexpressed.theResources"));
         StackPane pane = (StackPane) fxmlLoader.load(this.getClass().getResource("theScene.fxml").openStream());
 
         ((VBox) fxmlLoader.getNamespace().get("VBox")).getChildren().add(

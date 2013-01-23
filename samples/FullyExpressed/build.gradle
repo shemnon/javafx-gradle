@@ -9,6 +9,9 @@ dependencies {
     compile 'org.jfxtras:jfxtras-labs:2.2-r4'
 }
 
+group = 'com.bitbucket.shemnon.javafxplugin.samples'
+version = '0.0.0.0'
+
 javafx {
 
     debugKey {
@@ -28,10 +31,7 @@ javafx {
 
     appID 'FullyExpressed'
     appName 'Fully Expressed Build File'
-    mainClass 'TheMain'
-
-    packaging 'installer'
-
+    mainClass 'org.bitbucket.shemnon.jfx.sample.fullyexpressed.TheMain'
 
     jvmArgs = ['-XX:+AggressiveOpts', '-XX:CompileThreshold=1']
     systemProperties = [ 'prism.disableRegionCaching':'true' ]
@@ -122,6 +122,13 @@ But really, you should live with the conventions when appropriate.'''
         kind = 'shortcut'
         width = 256
         height = 256
+        scale = 1
+    }
+    icon {
+        href = "$buildDir/resources/package/shortcut-32.png"
+        kind = 'setup-icon'
+        width = 32
+        height = 32
         scale = 1
     }
 }
