@@ -10,6 +10,7 @@ repositories {
 
 dependencies {
     groovy 'org.codehaus.groovy:groovy-all:2.0.5'
+    compile 'org.jclarion:image4j:0.7'
     compile gradleApi()
     compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
     compile files("${System.properties['java.home']}/lib/jfxrt.jar")
@@ -62,6 +63,11 @@ uploadArchives {
                 version '8b72'
                 scope 'system'
                 systemPath '${java.home}/../lib/ant-javafx.jar'
+            }
+            dependency {
+                groupId 'org.jclarion'
+                artifactId 'image4j'
+                version '0.7'
             }
         }
     }

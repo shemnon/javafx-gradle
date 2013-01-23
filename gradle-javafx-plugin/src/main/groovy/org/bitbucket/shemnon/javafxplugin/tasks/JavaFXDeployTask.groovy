@@ -28,17 +28,24 @@ package org.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.DeployParams
 import com.sun.javafx.tools.packager.DeployParams.RunMode
-import com.sun.javafx.tools.packager.Log;
+import com.sun.javafx.tools.packager.Log
 import com.sun.javafx.tools.packager.PackagerLib
 import com.sun.javafx.tools.packager.bundlers.Bundler
+import net.sf.image4j.codec.bmp.BMPEncoder
+import net.sf.image4j.codec.ico.ICOEncoder
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.tasks.InputDirectory;
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.internal.ConventionTask
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.gradle.util.ConfigureUtil
+
+import java.awt.*
+import java.awt.geom.AffineTransform
+import java.awt.image.BufferedImage
+import java.util.List
 
 class JavaFXDeployTask extends ConventionTask {
 
@@ -176,7 +183,7 @@ class JavaFXDeployTask extends ConventionTask {
         if (getCodebase() != null) {
             try {
                 deployParams.codebase = getCodebase()
-            } catch (MissingPropertyException moe) {
+            } catch (MissingPropertyException ignored) {
                 getLogger().error("JavaFXDeployTask.codebase is only available in JavaFX 8 or later, codebase setting is ignored")
             }
         }
@@ -212,32 +219,35 @@ class JavaFXDeployTask extends ConventionTask {
             void debug(String msg) {
                 getLogger().debug(msg)
             }
-        })
+        } as Log.Logger)
 
         packager.generateDeploymentPackages(deployParams)
         Log.setLogger(null)
     }
 
     def icon(Closure closure) {
-         icons.add(new IconInfo(closure))
+        icons.add(new IconInfo(closure))
     }
 
 
     protected void processIcons(File destination) {
         if (Os.isFamily(Os.FAMILY_MAC)) {
-            processMacIcons(destination);
+            processMacOSXIcons(destination);
+        }
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            processWindowsIcons(destination);
         }
     }
 
-    protected void processMacIcons(File destination) {
-        processMacIcons('shortcut',
+    protected void processMacOSXIcons(File destination) {
+        processMacOSXIcns('shortcut',
                 new File(destination, "macosx/${project.javafx.appName}.icns"))
-        processMacIcons('volume',
+        processMacOSXIcns('volume',
                 new File(destination, "macosx/${project.javafx.appName}-volume.icns"))
     }
 
     def macIcnsSizes = [16,32,128,256,512]
-    protected void processMacIcons(String kind, File iconLocation) {
+    protected void processMacOSXIcns(String kind, File iconLocation) {
         // get explicit
         def dest = "$project.buildDir/icons/${kind}.iconset"
         project.mkdir(dest)
@@ -245,16 +255,16 @@ class JavaFXDeployTask extends ConventionTask {
         for (IconInfo ii : icons) {
             if (kind == ii.kind) {
                 if (ii.width != ii.height) {
-                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height")
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height")
                     continue;
                 }
                 if (ii.scale != 1 && ii.scale != 2) {
-                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it has an invalid scale")
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it has an invalid scale")
                     continue;
                 }
                 int index = macIcnsSizes.indexOf(ii.height)
                 if (index == -1) {
-                    logger.error("Icon $ii.kind rejected from MacOSX bundling because it is an unsupported dimension.  $macIcnsSizes dimensions are supported")
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is an unsupported dimension.  $macIcnsSizes dimensions are supported")
                     continue;
                 }
                 File file = project.file(ii.href)
@@ -263,7 +273,7 @@ class JavaFXDeployTask extends ConventionTask {
                     file = new File(getResourcesDir(), ii.href)
                 }
                 if (!file.isFile()) {
-                    logger.error("Icon $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is a directory.")
+                    logger.error("Icon $ii.href for $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is a directory.")
                     continue;
                 }
 
@@ -279,17 +289,100 @@ class JavaFXDeployTask extends ConventionTask {
             }
             ant.copy(file: "$project.buildDir/icons/${kind}.icns", toFile: iconLocation)
         }
-
     }
 
+    protected void processWindowsIcons(File destination) {
+        processWindowsIco('shortcut',
+                new File(destination, "windows/${project.javafx.appName}.ico"))
+        processWidnowsBMP('setup-icon',
+                new File(destination, "windows/${project.javafx.appName}-setup-icon.bmp"))
+    }
+
+    void processWidnowsBMP(String kind, File destination) {
+        boolean processed = false
+        for (IconInfo ii : icons) {
+            if (kind == ii.kind) {
+
+                File file = project.file(ii.href)
+                if (!file.exists()) {
+                    // try to resolve relative to output
+                    file = new File(getResourcesDir(), ii.href)
+                }
+                if (!file.isFile()) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is a directory.")
+                    continue;
+                }
+                if (processed) {
+                    logger.info("Icon $ii.href for $ii.kind rejected from Windows bundling because only one icon can be used.")
+                    continue;
+                }
+
+                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+
+
+                double scale = Math.min(Math.min(55.0 / icon.width, 58.0 / icon.height), 1.0)
+
+                BufferedImage bi = new BufferedImage((int)icon.width*scale, (int)icon.height*scale, BufferedImage.TYPE_INT_ARGB)
+                def g = bi.graphics
+                def t = new AffineTransform()
+                println scale
+                t.scale(scale, scale)
+                g.transform = t
+                g.drawImage(icon, 0, 0, null)
+                BMPEncoder.write(bi, destination)
+                processed = true
+            }
+        }
+    }
+
+    void processWindowsIco(String kind, File destination) {
+        Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
+        for (IconInfo ii : icons) {
+            if (kind == ii.kind) {
+                File file = project.file(ii.href)
+                if (!file.exists()) {
+                    // try to resolve relative to output
+                    file = new File(getResourcesDir(), ii.href)
+                }
+                if (!file.isFile()) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is a directory.")
+                    continue;
+                }
+                if (ii.scale != 1) {
+                    logger.info("Icon $ii.href for $ii.kind rejected from Widnows bundling because it has a scale other than '1'")
+                    continue;
+                }
+
+                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+
+                if (icon.width != icon.height) {
+                    logger.info("Icon $ii.href for $ii.kind rejected from Windows bundling because it is not square: $icon.width x $icon.height")
+                    continue;
+                }
+                BufferedImage bi = new BufferedImage(icon.width, icon.height, BufferedImage.TYPE_INT_ARGB)
+                bi.graphics.drawImage(icon, 0, 0, null)
+                images.put(bi.width, bi)
+            }
+
+        }
+        if (images) {
+            destination.parentFile.mkdirs()
+            List<BufferedImage> icons = images.values() as List
+            icons.addAll(images.values())
+            icons.addAll(images.values())
+            int imageCount = images.size()
+            int[] depths = [-1]*imageCount + [8]*imageCount + [4]*imageCount
+            ICOEncoder.write(icons, depths, destination)
+        }
+    }
 }
 
 class IconInfo {
     String href
     String kind = 'default'
-    int width = DeployParams.Icon.UNDEFINED
-    int height = DeployParams.Icon.UNDEFINED
-    int depth = DeployParams.Icon.UNDEFINED
+    int width = -1
+    int height = -1
+    int depth = -1
     double scale = 1 // for retina
     RunMode mode = RunMode.ALL
 
