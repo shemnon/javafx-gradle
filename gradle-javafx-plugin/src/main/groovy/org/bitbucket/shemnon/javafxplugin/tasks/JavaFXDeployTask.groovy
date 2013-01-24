@@ -237,6 +237,9 @@ class JavaFXDeployTask extends ConventionTask {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             processWindowsIcons(destination);
         }
+        if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
+            processLinuxIcons(destination)
+        }
     }
 
     protected void processMacOSXIcons(File destination) {
@@ -298,7 +301,7 @@ class JavaFXDeployTask extends ConventionTask {
                 new File(destination, "windows/${project.javafx.appName}-setup-icon.bmp"))
     }
 
-    void processWidnowsBMP(String kind, File destination) {
+    protected void processWidnowsBMP(String kind, File destination) {
         boolean processed = false
         for (IconInfo ii : icons) {
             if (kind == ii.kind) {
@@ -335,7 +338,7 @@ class JavaFXDeployTask extends ConventionTask {
         }
     }
 
-    void processWindowsIco(String kind, File destination) {
+    protected void processWindowsIco(String kind, File destination) {
         Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
         for (IconInfo ii : icons) {
             if (kind == ii.kind) {
@@ -374,6 +377,44 @@ class JavaFXDeployTask extends ConventionTask {
             int[] depths = [-1]*imageCount + [8]*imageCount + [4]*imageCount
             ICOEncoder.write(icons, depths, destination)
         }
+    }
+
+    protected void processLinuxIcons(File destination) {
+        File icon16, icon32
+        for (IconInfo ii : icons) {
+            if ('shortcut' == ii.kind) {
+
+                File file = project.file(ii.href)
+                if (!file.exists()) {
+                    // try to resolve relative to output
+                    file = new File(getResourcesDir(), ii.href)
+                }
+                if (!file.isFile()) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Linux bundling because $ii.href does not exist or it is a directory.")
+                    continue;
+                }
+                if (ii.scale != 1) {
+                    logger.info("Icon $ii.href for $ii.kind rejected from Linux bundling because it has a scale other than '1'")
+                    continue;
+                }
+
+                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+
+                if (icon.width == 32 && icon.height == 32) {
+                    icon32 = file
+                } else if (icon.width == 16 && icon.height == 16) {
+                    icon16 = file
+                } else {
+                    logger.info("Icon $ii.href for $ii.kind rejected from Linux bundling because it is ${icon.width}x${icon.height} and only 16x16 and 32x32 icons are used")
+                }
+            }
+        }
+
+        File icon = icon32 ?: icon16
+        if (icon) {
+             ant.copy(file: icon, toFile: new File(destination, "linux/${project.javafx.appName.replaceAll('\\s', '')}.png"))
+        }
+
     }
 }
 
