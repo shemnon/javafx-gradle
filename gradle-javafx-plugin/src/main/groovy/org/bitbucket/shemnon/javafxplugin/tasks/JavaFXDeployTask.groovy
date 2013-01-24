@@ -42,7 +42,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.ConfigureUtil
 
-import java.awt.*
+import javax.imageio.ImageIO
 import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
 import java.util.List
@@ -71,13 +71,13 @@ class JavaFXDeployTask extends ConventionTask {
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
 
-    // deplpy/info attributes
+    // deploy/info attributes
     String category
     String copyright
     String description
     String licenseType
     String vendor
-    List<IconInfo> icons = []
+    List<IconInfo> iconInfos = []
 
     // deploy/preferences attributes
     Boolean installSystemWide
@@ -103,7 +103,6 @@ class JavaFXDeployTask extends ConventionTask {
         //java.lang.String preloader;
         //java.util.List<com.sun.javafx.tools.packager.Param> params;
         //java.util.List<com.sun.javafx.tools.packager.HtmlParam> htmlParams;
-        //java.util.List<java.lang.String> arguments;
         //boolean embedCertificates;
         //boolean isExtension;
         //boolean isSwingApp;
@@ -114,10 +113,7 @@ class JavaFXDeployTask extends ConventionTask {
         //java.util.List<com.sun.javafx.tools.packager.DeployParams.Template> templates;
         //java.lang.String jrePlatform;
         //java.lang.String fxPlatform;
-        //java.util.List<java.lang.String> jvmargs;
-        //java.util.Map<java.lang.String,java.lang.String> properties;
         //java.lang.String fallbackApp;
-        //java.util.List<com.sun.javafx.tools.packager.DeployParams.Icon> icons;
 
 
         deployParams.width = getWidth()
@@ -177,7 +173,7 @@ class JavaFXDeployTask extends ConventionTask {
 
         deployParams.updateMode = getUpdateMode()
         deployParams.offlineAllowed = getOfflineAllowed()
-        for (IconInfo ii : icons) {
+        for (IconInfo ii : iconInfos) {
             deployParams.addIcon(ii.href, ii.kind, ii.width, ii.height, ii.depth, ii.mode);
         }
         if (getCodebase() != null) {
@@ -226,9 +222,48 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     def icon(Closure closure) {
-        icons.add(new IconInfo(closure))
+        iconInfos.add(new IconInfo(closure))
     }
 
+    def icons(Closure closure) {
+        Map m = [:]
+        ConfigureUtil.configure(closure, m)
+        m.each {k, v ->
+            if (v instanceof List) {
+                v.each {
+                    addIcon(k, it)
+                }
+            } else {
+                addIcon(k, v)
+            }
+        }
+    }
+
+    protected void addIcon(String kind, String href) {
+        File file = project.file(href)
+        if (!file.file) {
+            // try to resolve relative to output
+            file = new File(getResourcesDir(), href)
+        }
+        if (!file.file) return
+        BufferedImage image = ImageIO.read(file)
+
+        IconInfo ii = new IconInfo()
+        ii.image = image
+        ii.kind = kind
+        ii.href = href
+        if (href.contains('@2x')) {
+            ii.width = image.width / 2
+            ii.height = image.height / 2
+            ii.scale = 2
+        } else {
+            ii.width = image.width
+            ii.height = image.height
+            ii.scale = 1
+        }
+        iconInfos.add(ii)
+
+    }
 
     protected void processIcons(File destination) {
         if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -255,7 +290,7 @@ class JavaFXDeployTask extends ConventionTask {
         def dest = "$project.buildDir/icons/${kind}.iconset"
         project.mkdir(dest)
         boolean createIcon = false
-        for (IconInfo ii : icons) {
+        for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
                 if (ii.width != ii.height) {
                     logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height")
@@ -297,13 +332,13 @@ class JavaFXDeployTask extends ConventionTask {
     protected void processWindowsIcons(File destination) {
         processWindowsIco('shortcut',
                 new File(destination, "windows/${project.javafx.appName}.ico"))
-        processWidnowsBMP('setup-icon',
+        processWidnowsBMP('setup',
                 new File(destination, "windows/${project.javafx.appName}-setup-icon.bmp"))
     }
 
     protected void processWidnowsBMP(String kind, File destination) {
         boolean processed = false
-        for (IconInfo ii : icons) {
+        for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
 
                 File file = project.file(ii.href)
@@ -320,7 +355,7 @@ class JavaFXDeployTask extends ConventionTask {
                     continue;
                 }
 
-                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+                BufferedImage icon = ii.image ?: ImageIO.read(file)
 
 
                 double scale = Math.min(Math.min(55.0 / icon.width, 58.0 / icon.height), 1.0)
@@ -340,7 +375,7 @@ class JavaFXDeployTask extends ConventionTask {
 
     protected void processWindowsIco(String kind, File destination) {
         Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
-        for (IconInfo ii : icons) {
+        for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
                 File file = project.file(ii.href)
                 if (!file.exists()) {
@@ -356,7 +391,7 @@ class JavaFXDeployTask extends ConventionTask {
                     continue;
                 }
 
-                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+                BufferedImage icon = ii.image ?: ImageIO.read(file)
 
                 if (icon.width != icon.height) {
                     logger.info("Icon $ii.href for $ii.kind rejected from Windows bundling because it is not square: $icon.width x $icon.height")
@@ -381,7 +416,7 @@ class JavaFXDeployTask extends ConventionTask {
 
     protected void processLinuxIcons(File destination) {
         File icon16, icon32
-        for (IconInfo ii : icons) {
+        for (IconInfo ii : iconInfos) {
             if ('shortcut' == ii.kind) {
 
                 File file = project.file(ii.href)
@@ -398,7 +433,7 @@ class JavaFXDeployTask extends ConventionTask {
                     continue;
                 }
 
-                Image icon = Toolkit.defaultToolkit.getImage(file.toURI().toURL())
+                BufferedImage icon = ii.image ?: ImageIO.read(file)
 
                 if (icon.width == 32 && icon.height == 32) {
                     icon32 = file
@@ -426,6 +461,7 @@ class IconInfo {
     int depth = -1
     double scale = 1 // for retina
     RunMode mode = RunMode.ALL
+    protected BufferedImage image
 
 
     public IconInfo(Closure configure) {

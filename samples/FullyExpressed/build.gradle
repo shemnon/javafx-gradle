@@ -68,67 +68,26 @@ But really, you should live with the conventions when appropriate.'''
     shortcut = true
 
     codebase = 'http://example.com/bogus/JNLP/Codebase'
-    icon {
-        href = 'src/main/resources/javafx-icon.png'
-        kind = 'volume'
-        width = 128
-        height = 128
+
+    // app icons
+    icons {
+        shortcut = ['shortcut-16.png', 'shortcut-32.png', 'shortcut-128.png', 'shortcut-256.png', 'shortcut-16@2x.png', 'shortcut-32@2x.png', 'shortcut-128@2x.png']
+        volume = 'javafx-icon.png'
+        setup = 'shortcut-32.png'
     }
 
+    // jnlp icons, legacy
     icon {
-        href = 'shortcut-16.png'
-        kind = 'shortcut'
-        width = 16
-        height = 16
-        scale = 1
-    }
-    icon {
-        href = "$buildDir/resources/package/shortcut-16@2x.png"
-        kind = 'shortcut'
-        width = 16
-        height = 16
-        scale = 2
-    }
-    icon {
-        href = "$buildDir/resources/package/shortcut-32.png"
-        kind = 'shortcut'
-        width = 32
-        height = 32
-        scale = 1
-    }
-    icon {
-        href = "shortcut-32@2x.png"
-        kind = 'shortcut'
-        width = 32
-        height = 32
-        scale = 2
-    }
-    icon {
-        href = 'shortcut-128.png'
-        kind = 'shortcut'
+        href = 'src/main/resources/javafx-icon.png'
+        kind = 'splash'
         width = 128
         height = 128
-        scale = 1
     }
     icon {
-        href = "$buildDir/resources/package/shortcut-128@2x.png"
-        kind = 'shortcut'
-        width = 128
-        height = 128
-        scale = 2
-    }
-    icon {
-        href = "$buildDir/resources/package/shortcut-256.png"
-        kind = 'shortcut'
-        width = 256
-        height = 256
-        scale = 1
-    }
-    icon {
-        href = "$buildDir/resources/package/shortcut-32.png"
-        kind = 'setup-icon'
-        width = 32
-        height = 32
+        href = 'shortcut-32@2x.png'
+        kind = 'selected'
+        width = 16
+        height = 16
         scale = 1
     }
 }
