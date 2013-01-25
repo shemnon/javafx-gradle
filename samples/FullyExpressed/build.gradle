@@ -73,7 +73,7 @@ But really, you should live with the conventions when appropriate.'''
     icons {
         shortcut = ['shortcut-16.png', 'shortcut-32.png', 'shortcut-128.png', 'shortcut-256.png', 'shortcut-16@2x.png', 'shortcut-32@2x.png', 'shortcut-128@2x.png']
         volume = 'javafx-icon.png'
-        setup = 'shortcut-32.png'
+        setup = 'javafx-icon.png'
     }
 
     // jnlp icons, legacy

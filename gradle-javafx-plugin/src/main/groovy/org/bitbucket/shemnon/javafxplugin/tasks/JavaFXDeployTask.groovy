@@ -45,7 +45,6 @@ import org.gradle.util.ConfigureUtil
 import javax.imageio.ImageIO
 import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
-import java.util.List
 
 class JavaFXDeployTask extends ConventionTask {
 
@@ -240,29 +239,9 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     protected void addIcon(String kind, String href) {
-        File file = project.file(href)
-        if (!file.file) {
-            // try to resolve relative to output
-            file = new File(getResourcesDir(), href)
-        }
-        if (!file.file) return
-        BufferedImage image = ImageIO.read(file)
-
-        IconInfo ii = new IconInfo()
-        ii.image = image
+        IconInfo ii = new IconInfo(href)
         ii.kind = kind
-        ii.href = href
-        if (href.contains('@2x')) {
-            ii.width = image.width / 2
-            ii.height = image.height / 2
-            ii.scale = 2
-        } else {
-            ii.width = image.width
-            ii.height = image.height
-            ii.scale = 1
-        }
         iconInfos.add(ii)
-
     }
 
     protected void processIcons(File destination) {
@@ -292,30 +271,25 @@ class JavaFXDeployTask extends ConventionTask {
         boolean createIcon = false
         for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
+                BufferedImage icon = ii.image
+                if (icon == null) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is not an image.")
+                    continue;
+                }
                 if (ii.width != ii.height) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height")
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is not square: $ii.width x $ii.height.")
                     continue;
                 }
                 if (ii.scale != 1 && ii.scale != 2) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it has an invalid scale")
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it has an invalid scale.")
                     continue;
                 }
-                int index = macIcnsSizes.indexOf(ii.height)
-                if (index == -1) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is an unsupported dimension.  $macIcnsSizes dimensions are supported")
-                    continue;
-                }
-                File file = project.file(ii.href)
-                if (!file.exists()) {
-                    // try to resolve relative to output
-                    file = new File(getResourcesDir(), ii.href)
-                }
-                if (!file.isFile()) {
-                    logger.error("Icon $ii.href for $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is a directory.")
+                if (!macIcnsSizes.contains(ii.width)) {
+                    logger.info("Icon $ii.href for $ii.kind rejected from MacOSX bundling because it is an unsupported dimension.  $macIcnsSizes dimensions are supported.")
                     continue;
                 }
 
-                ant.copy(file: file, toFile: "$dest/icon_${ii.width}x${ii.height}${ii.scale == 2 ? '@2x': ''}.png")
+                ant.copy(file: ii.file, toFile: "$dest/icon_${ii.width}x${ii.height}${ii.scale == 2 ? '@2x': ''}.png")
                 createIcon = true
             }
 
@@ -340,14 +314,9 @@ class JavaFXDeployTask extends ConventionTask {
         boolean processed = false
         for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
-
-                File file = project.file(ii.href)
-                if (!file.exists()) {
-                    // try to resolve relative to output
-                    file = new File(getResourcesDir(), ii.href)
-                }
-                if (!file.isFile()) {
-                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is a directory.")
+                BufferedImage icon = ii.image
+                if (icon == null) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is not an image.")
                     continue;
                 }
                 if (processed) {
@@ -355,15 +324,11 @@ class JavaFXDeployTask extends ConventionTask {
                     continue;
                 }
 
-                BufferedImage icon = ii.image ?: ImageIO.read(file)
-
-
                 double scale = Math.min(Math.min(55.0 / icon.width, 58.0 / icon.height), 1.0)
 
                 BufferedImage bi = new BufferedImage((int)icon.width*scale, (int)icon.height*scale, BufferedImage.TYPE_INT_ARGB)
                 def g = bi.graphics
                 def t = new AffineTransform()
-                println scale
                 t.scale(scale, scale)
                 g.transform = t
                 g.drawImage(icon, 0, 0, null)
@@ -377,24 +342,19 @@ class JavaFXDeployTask extends ConventionTask {
         Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
         for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
-                File file = project.file(ii.href)
-                if (!file.exists()) {
-                    // try to resolve relative to output
-                    file = new File(getResourcesDir(), ii.href)
-                }
-                if (!file.isFile()) {
-                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is a directory.")
+                BufferedImage icon = ii.image
+                if (icon == null) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is not an image.")
                     continue;
                 }
                 if (ii.scale != 1) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from Widnows bundling because it has a scale other than '1'")
+                    logger.info("Icon $ii.href for $ii.kind rejected from Widnows bundling because it has a scale other than '1'.")
                     continue;
                 }
 
-                BufferedImage icon = ii.image ?: ImageIO.read(file)
 
                 if (icon.width != icon.height) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from Windows bundling because it is not square: $icon.width x $icon.height")
+                    logger.info("Icon $ii.href for $ii.kind rejected from Windows bundling because it is not square: $icon.width x $icon.height.")
                     continue;
                 }
                 BufferedImage bi = new BufferedImage(icon.width, icon.height, BufferedImage.TYPE_INT_ARGB)
@@ -415,56 +375,72 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     protected void processLinuxIcons(File destination) {
-        File icon16, icon32
+        IconInfo largestIcon
         for (IconInfo ii : iconInfos) {
             if ('shortcut' == ii.kind) {
-
-                File file = project.file(ii.href)
-                if (!file.exists()) {
-                    // try to resolve relative to output
-                    file = new File(getResourcesDir(), ii.href)
-                }
-                if (!file.isFile()) {
-                    logger.error("Icon $ii.href for $ii.kind rejected from Linux bundling because $ii.href does not exist or it is a directory.")
+                BufferedImage icon = ii.image
+                if (icon == null) {
+                    logger.error("Icon $ii.href for $ii.kind rejected from Linux bundling because $ii.href does not exist or it is not an image.")
                     continue;
                 }
-                if (ii.scale != 1) {
-                    logger.info("Icon $ii.href for $ii.kind rejected from Linux bundling because it has a scale other than '1'")
-                    continue;
-                }
-
-                BufferedImage icon = ii.image ?: ImageIO.read(file)
-
-                if (icon.width == 32 && icon.height == 32) {
-                    icon32 = file
-                } else if (icon.width == 16 && icon.height == 16) {
-                    icon16 = file
+                if (largestIcon?.width < ii.width) {
+                    if (largestIcon != null) {
+                        logger.info("Icon $largestIcon.href for $largestIcon.kind rejected from Linux bundling because it is not the largest icon.")
+                    }
+                    largestIcon = ii
                 } else {
-                    logger.info("Icon $ii.href for $ii.kind rejected from Linux bundling because it is ${icon.width}x${icon.height} and only 16x16 and 32x32 icons are used")
+                    logger.info("Icon $ii.href for $ii.kind rejected from Linux bundling because it is not the largest icon.")
                 }
             }
         }
 
-        File icon = icon32 ?: icon16
-        if (icon) {
-             ant.copy(file: icon, toFile: new File(destination, "linux/${project.javafx.appName.replaceAll('\\s', '')}.png"))
+        if (largestIcon) {
+             ant.copy(file: largestIcon.file, toFile: new File(destination, "linux/${project.javafx.appName.replaceAll('\\s', '')}.png"))
         }
 
     }
-}
 
-class IconInfo {
-    String href
-    String kind = 'default'
-    int width = -1
-    int height = -1
-    int depth = -1
-    double scale = 1 // for retina
-    RunMode mode = RunMode.ALL
-    protected BufferedImage image
+    class IconInfo {
+        String href
+        String kind = 'default'
+        int width = -1
+        int height = -1
+        int depth = -1
+        double scale = 1 // for retina
+        RunMode mode = RunMode.ALL
+        private BufferedImage _image
+        protected file
 
+        public IconInfo(String href) {
+            this.href = href
+        }
 
-    public IconInfo(Closure configure) {
-        ConfigureUtil.configure(configure, this)
+        public IconInfo(Closure configure) {
+            ConfigureUtil.configure(configure, this)
+        }
+
+        BufferedImage getImage() {
+            if (_image == null) {
+                file = getProject().file(href)
+                if (!file.file) {
+                    // try to resolve relative to output
+                    file = new File(getResourcesDir(), href)
+                }
+                if (!file.file) return
+
+                _image = ImageIO.read(file)
+
+                if (href.contains('@2x')) {
+                    width = _image.width / 2
+                    height = _image.height / 2
+                    scale = 2
+                } else {
+                    width = _image.width
+                    height = _image.height
+                    scale = 1
+                }
+            }
+            return _image
+        }
     }
 }
