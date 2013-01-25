@@ -1,1 +1,3 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+
+version = '1.8.0.0'

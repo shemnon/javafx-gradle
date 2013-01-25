@@ -244,7 +244,20 @@ class JavaFXDeployTask extends ConventionTask {
         iconInfos.add(ii)
     }
 
+    protected void loadConventialIcons(String kind) {
+        // this convention is non-configurable, hence it gets hard coded
+        project.fileTree('src/deploy/package', { include "$kind*.png"}).visit { fileDetails ->
+            addIcon(kind, fileDetails.path)
+        }
+    }
+
     protected void processIcons(File destination) {
+        if (iconInfos.isEmpty()) {
+            // if nothing is configured, use the convention
+            loadConventialIcons('shortcut')
+            loadConventialIcons('volume')
+            loadConventialIcons('setup')
+        }
         if (Os.isFamily(Os.FAMILY_MAC)) {
             processMacOSXIcons(destination);
         }
