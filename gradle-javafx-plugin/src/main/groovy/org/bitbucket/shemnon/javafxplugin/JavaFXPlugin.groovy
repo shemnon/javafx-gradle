@@ -198,6 +198,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.appID = {convention, aware -> project.javafx.appID }
         task.conventionMapping.appName = {convention, aware -> project.javafx.appName }
         task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
+        task.conventionMapping.version = {convention, aware -> ('unspecified' == project.version) ? '0.0.0' : project.version }
 
 
         task.conventionMapping.inputFiles = {convention, aware ->

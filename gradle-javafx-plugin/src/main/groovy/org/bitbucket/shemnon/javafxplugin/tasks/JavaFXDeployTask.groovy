@@ -77,6 +77,7 @@ class JavaFXDeployTask extends ConventionTask {
     String licenseType
     String vendor
     List<IconInfo> iconInfos = []
+    String version
 
     // deploy/preferences attributes
     Boolean installSystemWide
@@ -96,7 +97,7 @@ class JavaFXDeployTask extends ConventionTask {
     processResources() {
         DeployParams deployParams = new DeployParams();
 
-        deployParams.version = getProject().getVersion() // FIXME make a convention property
+        deployParams.version = getVersion()
 
         // these deploy params are currently not set
         //java.lang.String preloader;
