@@ -2,6 +2,22 @@ apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapsho
 apply plugin: 'idea'
 apply plugin: 'maven'
 
+// e(fx)clipse integration, not part of the Gradle JavaFX Plugin proper
+// just here for integration testing
+apply plugin: 'eclipse'
+eclipse {
+    project {
+        natures 'org.eclipse.jdt.core.javanature', 'org.eclipse.xtext.ui.shared.xtextNature'
+        buildCommand 'org.eclipse.jdt.core.javabuilder'
+        buildCommand 'org.eclipse.xtext.ui.shared.xtextBuilder'
+    }
+
+    classpath {
+        containers 'at.bestsolution.efxclipse.tooling.jdt.core.JAVAFX_CONTAINER'
+    }
+}
+
+
 repositories {
     mavenCentral()
 }
