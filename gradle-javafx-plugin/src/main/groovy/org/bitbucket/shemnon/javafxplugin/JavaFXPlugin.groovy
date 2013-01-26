@@ -112,17 +112,20 @@ class JavaFXPlugin implements Plugin<Project> {
 
     private configureJavaFXJarTask(Project project) {
         def task = project.task("jfxJar", type: JavaFXJarTask,
-                description: "Jars up the classes and adds JavaFX specific packaging.",
-                group: 'Build')
+                description: "Adds JavaFX specific packaging to the jar.",
+                group: 'Build',
+                dependsOn: 'jar')
+        project.afterEvaluate {
+            project.configurations.archives.artifacts*.builtBy task
+        }
 
         task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
+        task.conventionMapping.embedLauncher = {convention, aware -> project.javafx.embedLauncher }
+        task.conventionMapping.arguments = {convention, aware -> project.javafx.arguments}
 
-        task.conventionMapping.outputDirectory = {convention, aware ->
-            "$project.libsDir" as File}
-        task.conventionMapping.outputFile = {convention, aware ->
-            "${project.archivesBaseName}.jar" as File}
-
-        task.conventionMapping.inputFiles = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output}
+        task.conventionMapping.jarFile = {convention, aware ->
+            project.tasks.getByName("jar").archivePath
+        }
         task.conventionMapping.classpath = {convention, aware ->
             FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
@@ -147,7 +150,12 @@ class JavaFXPlugin implements Plugin<Project> {
     private configureJavaFXSignJarTask(Project project) {
         def task = project.task("jfxSignJar", type: JavaFXSignJarTask,
                 description: "Signs the JavaFX jars the JavaFX way.",
-                group: 'Build')
+                group: 'Build',
+                dependsOn: 'jfxJar')
+        project.afterEvaluate {
+            project.configurations.archives.artifacts*.builtBy task
+
+        }
 
         ['alias', 'keyPass', 'storePass', 'storeType'].each { prop ->
             task.conventionMapping[prop]  = {convention, aware ->
@@ -165,12 +173,12 @@ class JavaFXPlugin implements Plugin<Project> {
             return keyFile == null ? jfxc?."${mode}Key"?.keyStore : new File(keyFile)
         }
 
-        task.conventionMapping.outdir = {convention, aware -> "$project.libsDir/../signed" as File}
+        task.conventionMapping.outdir = {convention, aware -> project.libsDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
             FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
-            runtimeClasspath  + project.files("$project.libsDir/${project.archivesBaseName}.jar" as File)- providedRuntime
+            project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it})
         }
 
         task.dependsOn(project.tasks.getByName("jfxJar"))
@@ -193,7 +201,7 @@ class JavaFXPlugin implements Plugin<Project> {
 
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            project.fileTree("$project.libsDir/../signed").include("*.jar")
+            project.fileTree(project.libsDir).include("*.jar")
         }
         task.conventionMapping.resourcesDir = { convention, aware ->
             def rd = project.sourceSets['package'].output.resourcesDir
@@ -211,7 +219,6 @@ class JavaFXPlugin implements Plugin<Project> {
         task.dependsOn(project.tasks.getByName("packageClasses"))
 
         project.tasks.getByName("assemble").dependsOn(task)
-        project.tasks.getByName("jar").enabled = false
     }
     
     private void configureRunTask(Project project) {

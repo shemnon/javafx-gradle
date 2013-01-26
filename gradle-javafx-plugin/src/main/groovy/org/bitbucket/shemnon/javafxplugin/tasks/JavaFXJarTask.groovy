@@ -29,11 +29,10 @@ package org.bitbucket.shemnon.javafxplugin.tasks
 import com.sun.javafx.tools.packager.CreateJarParams
 import com.sun.javafx.tools.packager.PackagerLib;
 import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.SourceSetOutput
 import org.gradle.api.file.FileCollection
 
 /**
@@ -48,26 +47,22 @@ public class JavaFXJarTask extends ConventionTask {
     processResources() {
         CreateJarParams createJarParams = new CreateJarParams();
 
-        // hardcodes, fix later
-        createJarParams.embedLauncher = true
-        createJarParams.css2bin = false
-
-        createJarParams.addResource(getInputFiles().getClassesDir(), getInputFiles().getClassesDir())
-        createJarParams.addResource(getInputFiles().getResourcesDir(), getInputFiles().getResourcesDir())
-        //TODO process dirs
-
+        createJarParams.addResource(null, getJarFile())
         createJarParams.applicationClass = getMainClass()
-        createJarParams.outfile = getOutputFile()
-        createJarParams.outdir = getOutputDirectory()
-
+        createJarParams.arguments = getArguments()
         createJarParams.classpath = getClasspath().files.collect {it.name}.join ' '
+        createJarParams.css2bin = false
+        createJarParams.embedLauncher = getEmbedLauncher()
+        createJarParams.outdir = getJarFile().parentFile
+        createJarParams.outfile = getJarFile().name
+
 
         // not provided, fix later
-        //createJarParams.arguments
         //createJarParams.manifestAttrs
         //createJarParams.fxVersion
         //createJarParams.fallback
         //createJarParams.preloader
+
 
         PackagerLib packager = new PackagerLib();
         packager.packageAsJar(createJarParams)
@@ -75,16 +70,12 @@ public class JavaFXJarTask extends ConventionTask {
     }
 
     String mainClass
-
-    @OutputFile
-    File outputFile
-
-    @OutputDirectory
-    File outputDirectory
+    boolean embedLauncher
+    List<String> arguments
 
     @InputFiles
     FileCollection classpath
 
-    @InputFiles
-    SourceSetOutput inputFiles
+    @InputFile
+    File jarFile
 }

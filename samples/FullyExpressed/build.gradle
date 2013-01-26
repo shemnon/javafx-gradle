@@ -1,5 +1,6 @@
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
 apply plugin: 'idea'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -36,6 +37,8 @@ javafx {
     jvmArgs = ['-XX:+AggressiveOpts', '-XX:CompileThreshold=1']
     systemProperties = [ 'prism.disableRegionCaching':'true' ]
     arguments = ['1AC', '1NC', '2AC', '2NC', '1NR', '1AR', '2NR', '2AR']
+
+    embedLauncher = true // caution: class-path not set and is overwritten if set to false
 }
 
 generateDebugKey {

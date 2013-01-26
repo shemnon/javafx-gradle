@@ -39,6 +39,8 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
     SigningKeyInfo debugKey
     SigningKeyInfo releaseKey
 
+    boolean embedLauncher = true
+
     String signingMode
 
     // app info
