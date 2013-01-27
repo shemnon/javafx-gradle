@@ -26,6 +26,7 @@
  */
 package org.bitbucket.shemnon.javafxplugin
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXDeployTask
@@ -49,8 +50,12 @@ class JavaFXPlugin implements Plugin<Project> {
     public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
     public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
 
+    private Project project
+
     @Override
     void apply(Project project) {
+        this.project = project
+
         project.getPlugins().apply(JavaPlugin)
         project.extensions.create('javafx', JavaFXPluginExtension)
 
@@ -286,46 +291,71 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     public File findJFXJar() {
-        def javafxHome = System.env['JFXRT_HOME']
-        File jfxrtHome
-        if (javafxHome) {
-            jfxrtHome = "${javafxHome}" as File
-        } else {
-            final javaHome = System.env['JAVA_HOME']
-            if (javaHome)
-                jfxrtHome = "${javaHome}/jre/lib"  as File
-            else
-                jfxrtHome = "${System.properties['java.home']}/lib" as File
+        File jfxrtJar
+        def jfxrtHome = System.env['JFXRT_HOME']
+        if (jfxrtHome) {
+            try {
+                jfxrtJar = project.fileTree(dir: jfxrtHome, include: "**/jfxrt.jar").singleFile
+            } catch (IllegalStateException ignore) {
+                // no file or two files
+            }
         }
 
-        File jfxrtJar = new File((File) jfxrtHome, "jfxrt.jar")
-        if (!jfxrtJar.exists()) {
-            println ("""    Please set the environment variable JFXRT_HOME
-    to the directory that contains jfxrt.jar, or set JAVA_HOME.""")
 
+        if (!jfxrtJar?.file) {
+            String javaHome = System.env['JAVA_HOME']
+            if (!javaHome) {
+                javaHome = System.properties['java.home']
+            }
+            try {
+                jfxrtJar = project.fileTree(dir: javaHome, include: "**/jfxrt.jar").singleFile
+            } catch (IllegalStateException ignore) {
+                // no file or two files
+            }
+        }
+
+        if (!jfxrtJar?.file) {
+            println("""    Please set the environment variable JFXRT_HOME
+    to the directory that contains jfxrt.jar, or set JAVA_HOME.""")
+            throw new GradleException("jfxrt.jar file not found");
         }
         println "JavaFX runtime jar: ${jfxrtJar}"
         return jfxrtJar
     }
 
     public File findAntJavaFXJar() {
-        def javafxHome = System.env['JFXRT_HOME']
-        File jfxrtHome
-        if (javafxHome) {
-            jfxrtHome = "${javafxHome}" as File
-        } else {
-            final javaHome = System.env['JAVA_HOME']
-            if (javaHome)
-                jfxrtHome = "${javaHome}/lib"  as File
-            else
-                jfxrtHome = "${System.properties['java.home']}/../lib" as File
+        File antjfxjar
+        def jfxrtHome = System.env['JFXRT_HOME']
+        if (jfxrtHome) {
+            try {
+                if (jfxrtHome.endsWith('jre')) {
+                    jfxrtHome += "/..";
+                }
+                antjfxjar = project.fileTree(dir: "$jfxrtHome", include: "lib/ant-javafx.jar").singleFile
+            } catch (IllegalStateException ignore) {
+                // no file or two files
+            }
         }
 
-        File antjfxjar = new File((File)jfxrtHome, "ant-javafx.jar")
-        if (!antjfxjar.exists()) {
+        if (!antjfxjar?.file) {
+            String javaHome = System.env['JAVA_HOME']
+            if (!javaHome) {
+                javaHome = System.properties['java.home']
+            }
+            if (javaHome.endsWith('jre')) {
+                javaHome += "/..";
+            }
+            try {
+                antjfxjar = project.fileTree(dir: "$javaHome", include: "lib/ant-javafx.jar").singleFile
+            } catch (IllegalStateException ignore) {
+                // no file or two files
+            }
+        }
+
+        if (!antjfxjar?.file) {
             println("""    Please set the environment variable JFXRT_HOME
     to the directory that contains jfxrt.jar, or set JAVA_HOME.""")
-
+            throw new GradleException("ant-javafx.jar file not found");
         }
         println "JavaFX ant jar: ${antjfxjar}"
         return antjfxjar

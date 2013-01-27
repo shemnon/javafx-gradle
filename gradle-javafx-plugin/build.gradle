@@ -13,7 +13,7 @@ dependencies {
     compile 'org.jclarion:image4j:0.7'
     compile gradleApi()
     compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
-    compile files("${System.properties['java.home']}/lib/jfxrt.jar")
+    compile fileTree(dir: "${System.properties['java.home']}", include: '**/jfxrt.jar')
 }
 
 uploadArchives {
@@ -56,6 +56,13 @@ uploadArchives {
                 version '8b72'
                 scope 'system'
                 systemPath '${java.home}/lib/jfxrt.jar'
+            }
+            dependency {
+                groupId 'net.java.openjdk'
+                artifactId 'jfxrt'
+                version '8b75'
+                scope 'system'
+                systemPath '${java.home}/lib/ext/jfxrt.jar'
             }
             dependency {
                 groupId 'net.java.openjdk'
