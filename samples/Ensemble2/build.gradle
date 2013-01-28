@@ -32,7 +32,7 @@ task buildSearchIndex(type:JavaExec) {
     workingDir = sourceSets.main.output.resourcesDir
 }
 
-jfxJar.dependsOn(buildSearchIndex)
+jar.dependsOn(buildSearchIndex)
 run.dependsOn(buildSearchIndex)
 debug.dependsOn(buildSearchIndex)
 
