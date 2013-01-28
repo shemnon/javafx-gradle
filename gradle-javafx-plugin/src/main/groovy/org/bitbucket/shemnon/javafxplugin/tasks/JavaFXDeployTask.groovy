@@ -379,12 +379,8 @@ class JavaFXDeployTask extends ConventionTask {
         }
         if (images) {
             destination.parentFile.mkdirs()
-            List<BufferedImage> icons = images.values() as List
-            icons.addAll(images.values())
-            icons.addAll(images.values())
-            int imageCount = images.size()
-            int[] depths = [-1]*imageCount + [8]*imageCount + [4]*imageCount
-            ICOEncoder.write(icons, depths, destination)
+            List<BufferedImage> icons = (images.values() as List).reverse()
+            ICOEncoder.write(icons, destination)
         }
     }
 
