@@ -27,7 +27,9 @@
 package org.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.CreateJarParams
-import com.sun.javafx.tools.packager.PackagerLib;
+import com.sun.javafx.tools.packager.Log
+import com.sun.javafx.tools.packager.PackagerLib
+import org.gradle.api.JavaVersion;
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -47,7 +49,19 @@ public class JavaFXJarTask extends ConventionTask {
     processResources() {
         CreateJarParams createJarParams = new CreateJarParams();
 
-        createJarParams.addResource(null, getJarFile())
+        if (JavaVersion.current().java8Compatible) {
+            createJarParams.addResource(null, getJarFile())
+        } else {
+            // Boo!  Hiss!  Under JDK7 we must explode!
+            File exploded = "build/jdk7Compat/${getJarFile().name}" as File
+            exploded.mkdirs()
+            project.copy {
+                from project.zipTree(getJarFile())
+                into exploded
+            }
+            createJarParams.addResource(exploded, ".")
+        }
+
         createJarParams.applicationClass = getMainClass()
         createJarParams.arguments = getArguments()
         createJarParams.classpath = getClasspath().files.collect {it.name}.join ' '
@@ -65,7 +79,27 @@ public class JavaFXJarTask extends ConventionTask {
 
 
         PackagerLib packager = new PackagerLib();
+
+        Log.setLogger(new Log.Logger(true) {
+            @Override
+            void info(String msg) {
+                getLogger().info(msg)
+            }
+
+            @Override
+            void verbose(String msg) {
+                debug(msg)
+            }
+
+            @Override
+            void debug(String msg) {
+                getLogger().debug(msg)
+            }
+        } as Log.Logger)
+
         packager.packageAsJar(createJarParams)
+
+        Log.setLogger(null)
 
     }
 
