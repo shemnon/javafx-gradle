@@ -27,7 +27,7 @@ dependencies {
 }
 
 group = 'com.bitbucket.shemnon.javafxplugin.samples'
-version = '0.0.0.0'
+version = '0.0.0'
 
 javafx {
 
