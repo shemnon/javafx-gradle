@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.bitbucket.shemnon.javafxplugin'
-version = '0.2.0-SNAPSHOT'
+version = '0.2.0'
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/plugin/",
+            repository(url:"https://api.bintray.com/maven/shemnon/javafx-gradle/gradle-javafx-plugin/",
                 id: 'bintray-shemnon-javafx-gradle-plugin'
             ) {
                 try {
