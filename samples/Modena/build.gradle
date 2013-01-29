@@ -1,9 +1,10 @@
-apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+apply from: 'http://dl.bintray.com/content/shemnon/javafx-gradle/javafx.plugin'
 
-if (!System.getProperty("java.version").matches(/^(1\.)?8.*/)) { //FIXME not the best way, but cloudbees is on an old version of gradle
+if (!JavaVersion.current().isJava8Compatible()) {
     throw new GradleException("Java 8 required, ${System.getProperty("java.version")} found")
 }
 
 javafx {
     mainClass = 'modena.Modena'
+    systemProperties = [ 'prism.disableRegionCaching':'true' ]
 }
