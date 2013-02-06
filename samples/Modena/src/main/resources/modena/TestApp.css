@@ -43,6 +43,15 @@
     -fx-effect: null;
 }
 .section-label {
-    -fx-font-weight: bold;
-    -fx-text-fill: rgba(0,0,0,0.5);
+    -fx-font-weight: normal;
+    -fx-text-fill: derive(-fx-text-background-color,30%);
+}
+
+.section-border {
+    -fx-border-color: ladder(
+        -fx-background,
+        derive(-fx-background,10%) 20%,
+        derive(-fx-background,-10%)  21%
+     );;
+    -fx-padding: 20;
 }
