@@ -34,6 +34,7 @@ import com.sun.javafx.tools.packager.bundlers.Bundler
 import net.sf.image4j.codec.bmp.BMPEncoder
 import net.sf.image4j.codec.ico.ICOEncoder
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.bitbucket.shemnon.javafxplugin.IconInfo
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputDirectory
@@ -48,7 +49,6 @@ import java.awt.image.BufferedImage
 
 class JavaFXDeployTask extends ConventionTask {
 
-
     String packaging
 
     FileCollection antJavaFXJar
@@ -58,7 +58,6 @@ class JavaFXDeployTask extends ConventionTask {
 
     boolean verbose = false
 
-    String mainClass
     int width = 1024
     int height = 768
     boolean embedJNLP = false
@@ -66,6 +65,7 @@ class JavaFXDeployTask extends ConventionTask {
     boolean offlineAllowed = true
     String codebase
 
+    String mainClass
     List<String> jvmArgs = []
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
@@ -173,7 +173,7 @@ class JavaFXDeployTask extends ConventionTask {
 
         deployParams.updateMode = getUpdateMode()
         deployParams.offlineAllowed = getOfflineAllowed()
-        for (IconInfo ii : iconInfos) {
+        for (IconInfo ii : getIconInfos()) {
             deployParams.addIcon(ii.href, ii.kind, ii.width, ii.height, ii.depth, ii.mode);
         }
         if (getCodebase() != null) {
@@ -184,9 +184,9 @@ class JavaFXDeployTask extends ConventionTask {
             }
         }
 
-        jvmArgs.each { deployParams.addJvmArg(it) }
-        systemProperties.each {k, v -> deployParams.addJvmProperty(k, v)}
-        deployParams.arguments = arguments
+        getJvmArgs().each { deployParams.addJvmArg(it) }
+        getSystemProperties().each {k, v -> deployParams.addJvmProperty(k, v)}
+        deployParams.arguments = getArguments()
 
         File packageResourcesOutput = project.sourceSets['package'].output.resourcesDir
         processIcons(packageResourcesOutput)
@@ -222,7 +222,7 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     def icon(Closure closure) {
-        iconInfos.add(new IconInfo(closure))
+        getIconInfos().add(new IconInfo(closure))
     }
 
     def icons(Closure closure) {
@@ -242,7 +242,7 @@ class JavaFXDeployTask extends ConventionTask {
     protected void addIcon(String kind, String href) {
         IconInfo ii = new IconInfo(href)
         ii.kind = kind
-        iconInfos.add(ii)
+        getIconInfos().add(ii)
     }
 
     protected void loadConventialIcons(String kind) {
@@ -283,9 +283,9 @@ class JavaFXDeployTask extends ConventionTask {
         def dest = "$project.buildDir/icons/${kind}.iconset"
         project.mkdir(dest)
         boolean createIcon = false
-        for (IconInfo ii : iconInfos) {
+        for (IconInfo ii : getIconInfos()) {
             if (kind == ii.kind) {
-                BufferedImage icon = ii.image
+                BufferedImage icon = getImage(ii)
                 if (icon == null) {
                     logger.error("Icon $ii.href for $ii.kind rejected from MacOSX bundling because $ii.href does not exist or it is not an image.")
                     continue;
@@ -326,9 +326,9 @@ class JavaFXDeployTask extends ConventionTask {
 
     protected void processWidnowsBMP(String kind, File destination) {
         boolean processed = false
-        for (IconInfo ii : iconInfos) {
+        for (IconInfo ii : getIconInfos()) {
             if (kind == ii.kind) {
-                BufferedImage icon = ii.image
+                BufferedImage icon = getImage(ii)
                 if (icon == null) {
                     logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is not an image.")
                     continue;
@@ -356,7 +356,7 @@ class JavaFXDeployTask extends ConventionTask {
         Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
         for (IconInfo ii : iconInfos) {
             if (kind == ii.kind) {
-                BufferedImage icon = ii.image
+                BufferedImage icon = getImage(ii)
                 if (icon == null) {
                     logger.error("Icon $ii.href for $ii.kind rejected from Windows bundling because $ii.href does not exist or it is not an image.")
                     continue;
@@ -386,9 +386,9 @@ class JavaFXDeployTask extends ConventionTask {
 
     protected void processLinuxIcons(File destination) {
         IconInfo largestIcon
-        for (IconInfo ii : iconInfos) {
+        for (IconInfo ii : getIconInfos()) {
             if ('shortcut' == ii.kind) {
-                BufferedImage icon = ii.image
+                BufferedImage icon = getImage(ii)
                 if (icon == null) {
                     logger.error("Icon $ii.href for $ii.kind rejected from Linux bundling because $ii.href does not exist or it is not an image.")
                     continue;
@@ -410,47 +410,27 @@ class JavaFXDeployTask extends ConventionTask {
 
     }
 
-    class IconInfo {
-        String href
-        String kind = 'default'
-        int width = -1
-        int height = -1
-        int depth = -1
-        double scale = 1 // for retina
-        RunMode mode = RunMode.ALL
-        private BufferedImage _image
-        protected file
-
-        public IconInfo(String href) {
-            this.href = href
-        }
-
-        public IconInfo(Closure configure) {
-            ConfigureUtil.configure(configure, this)
-        }
-
-        BufferedImage getImage() {
-            if (_image == null) {
-                file = getProject().file(href)
-                if (!file.file) {
-                    // try to resolve relative to output
-                    file = new File(getResourcesDir(), href)
-                }
-                if (!file.file) return
-
-                _image = ImageIO.read(file)
-
-                if (href.contains('@2x')) {
-                    width = _image.width / 2
-                    height = _image.height / 2
-                    scale = 2
-                } else {
-                    width = _image.width
-                    height = _image.height
-                    scale = 1
-                }
+    BufferedImage getImage(IconInfo ii) {
+        if (ii._image == null) {
+            ii.file = getProject().file(ii.href)
+            if (!ii.file.file) {
+                // try to resolve relative to output
+                ii.file = new File(getResourcesDir(), ii.href)
             }
-            return _image
+            if (!ii.file.file) return
+
+            ii._image = ImageIO.read(ii.file)
+
+            if (ii.href.contains('@2x')) {
+                ii.width = ii._image.width / 2
+                ii.height = ii._image.height / 2
+                ii.scale = 2
+            } else {
+                ii.width = ii._image.width
+                ii.height = ii._image.height
+                ii.scale = 1
+            }
         }
+        return ii._image
     }
 }

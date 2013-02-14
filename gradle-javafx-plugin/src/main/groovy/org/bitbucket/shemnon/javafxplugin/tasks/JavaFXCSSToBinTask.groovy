@@ -39,6 +39,12 @@ import org.gradle.api.tasks.TaskAction
 
 class JavaFXCSSToBinTask extends ConventionTask {
 
+    @InputFiles
+    SourceDirectorySet inputFiles
+
+    @OutputDirectory
+    File distsDir
+
     @TaskAction
     processResources() {
 
@@ -65,9 +71,4 @@ class JavaFXCSSToBinTask extends ConventionTask {
         packager.generateBSS(bssParams)
     }
 
-    @InputFiles
-    SourceDirectorySet inputFiles
-
-    @OutputDirectory
-    File distsDir
 }

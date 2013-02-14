@@ -26,8 +26,11 @@
  */
 package org.bitbucket.shemnon.javafxplugin
 
+import com.sun.javafx.tools.packager.DeployParams
 import org.gradle.util.ConfigureUtil
 import org.gradle.api.file.FileCollection
+
+import java.awt.image.BufferedImage
 
 class JavaFXPluginExtension { //extends BasePluginConvention {
 
@@ -39,20 +42,47 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
     SigningKeyInfo debugKey
     SigningKeyInfo releaseKey
 
-    boolean embedLauncher = true
-
     String signingMode
+
+    boolean embedLauncher = true
 
     // app info
     String appID
     String appName
-    String mainClass
 
     String packaging
 
+    // JNLP Packaging
+    int width = 1024
+    int height = 768
+    boolean embedJNLP = false
+    String updateMode = "background"
+    boolean offlineAllowed = true
+    String codebase
+
+    // runtime stuff
+    String mainClass
     List<String> jvmArgs = []
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
+
+    // deploy/info attributes
+    String category
+    String copyright
+    String description
+    String licenseType
+    String vendor
+
+    // deploy/preferences attributes
+    Boolean installSystemWide
+    boolean menu
+    boolean shortcut
+
+    protected List<IconInfo> iconInfos = []
+    protected List<IconInfo> getIconInfos() { return iconInfos}
+    protected void setIconInfo(List<IconInfo> icons) {iconInfos = icons}
+
+
 
     public debugKey(Closure closure) {
         debugKey = new SigningKeyInfo(closure)
@@ -62,7 +92,29 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
         releaseKey = new SigningKeyInfo(closure)
     }
 
+    def icon(Closure closure) {
+        getIconInfos().add(new IconInfo(closure))
+    }
 
+    def icons(Closure closure) {
+        Map m = [:]
+        ConfigureUtil.configure(closure, m)
+        m.each {k, v ->
+            if (v instanceof List) {
+                v.each {
+                    addIcon(k, it)
+                }
+            } else {
+                addIcon(k, v)
+            }
+        }
+    }
+
+    protected void addIcon(String kind, String href) {
+        IconInfo ii = new IconInfo(href)
+        ii.kind = kind
+        getIconInfos().add(ii)
+    }
 }
 
 class SigningKeyInfo {
@@ -81,4 +133,25 @@ class SigningKeyInfo {
     //   - determine if a key exists
     //   - load stuff like validity and dname from existing key
     //   - prompt for password if set to null on a read
+}
+
+class IconInfo {
+    String href
+    String kind = 'default'
+    int width = -1
+    int height = -1
+    int depth = -1
+    double scale = 1 // for retina
+    DeployParams.RunMode mode = DeployParams.RunMode.ALL
+    private BufferedImage _image
+    protected file
+
+    public IconInfo(String href) {
+        this.href = href
+    }
+
+    public IconInfo(Closure configure) {
+        ConfigureUtil.configure(configure, this)
+    }
+
 }

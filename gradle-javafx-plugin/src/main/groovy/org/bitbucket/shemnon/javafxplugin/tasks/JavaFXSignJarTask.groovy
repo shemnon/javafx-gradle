@@ -42,6 +42,21 @@ import org.gradle.api.tasks.OutputDirectory
  */
 public class JavaFXSignJarTask extends ConventionTask {
 
+    String alias
+    String keyPass
+    File keyStore
+    String storePass
+    String storeType
+    String verbose = "true" // FIXME hard coded
+
+    @OutputDirectory
+    File outdir
+
+    @InputFiles
+    FileCollection inputFiles
+
+
+
     @TaskAction
     processResources() {
 
@@ -60,18 +75,5 @@ public class JavaFXSignJarTask extends ConventionTask {
         PackagerLib packager = new PackagerLib();
         packager.signJar(signJarParams)
     }
-
-    String alias
-    String keyPass
-    File keyStore
-    String storePass
-    String storeType
-    String verbose = "true" // FIXME hard coded
-
-    @OutputDirectory
-    File outdir
-
-    @InputFiles
-    FileCollection inputFiles
 
 }

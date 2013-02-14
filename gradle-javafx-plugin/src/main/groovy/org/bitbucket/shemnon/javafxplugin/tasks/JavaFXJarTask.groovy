@@ -45,6 +45,16 @@ import org.gradle.api.file.FileCollection
  */
 public class JavaFXJarTask extends ConventionTask {
 
+    String mainClass
+    boolean embedLauncher
+    List<String> arguments
+
+    @InputFiles
+    FileCollection classpath
+
+    @InputFile
+    File jarFile
+
     @TaskAction
     processResources() {
         CreateJarParams createJarParams = new CreateJarParams();
@@ -103,13 +113,4 @@ public class JavaFXJarTask extends ConventionTask {
 
     }
 
-    String mainClass
-    boolean embedLauncher
-    List<String> arguments
-
-    @InputFiles
-    FileCollection classpath
-
-    @InputFile
-    File jarFile
 }

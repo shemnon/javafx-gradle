@@ -195,14 +195,36 @@ class JavaFXPlugin implements Plugin<Project> {
                 description: "Processes the JavaFX jars and generates webstart and native packages.",
                 group: 'Build')
 
-        task.conventionMapping.packaging = {convention, aware -> project.javafx.packaging }
+        [
+                'antJavaFXJar',
+                'appID',
+                'appName',
+                'arguments',
+                'category',
+                'codebase',
+                'copyright',
+                'description',
+                'embedJNLP',
+                'height',
+                'iconInfos',
+                'installSystemWide',
+                'jvmArgs',
+                'licenseType',
+                'mainClass',
+                'menu',
+                'offlineAllowed',
+                'packaging',
+                'shortcut',
+                'systemProperties',
+                'updateMode',
+                'vendor',
+                'verbose',
+                'width',
+        ].each {prop ->
+            task.conventionMapping[prop] = {convention, aware -> project.javafx[prop] }
 
-        task.conventionMapping.antJavaFXJar = {convention, aware ->
-            project.javafx.antJavaFXJar }
-
-        task.conventionMapping.appID = {convention, aware -> project.javafx.appID }
-        task.conventionMapping.appName = {convention, aware -> project.javafx.appName }
-        task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
+        }
+        // version is special
         task.conventionMapping.version = {convention, aware -> ('unspecified' == project.version) ? '0.0.0' : project.version }
 
 
@@ -216,10 +238,6 @@ class JavaFXPlugin implements Plugin<Project> {
         }
 
         task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
-
-        task.conventionMapping.jvmArgs = {convention, aware -> project.javafx.jvmArgs }
-        task.conventionMapping.systemProperties = {convention, aware -> project.javafx.systemProperties }
-        task.conventionMapping.arguments = {convention, aware -> project.javafx.arguments}
 
         task.dependsOn(project.tasks.getByName("jfxSignJar"))
         task.dependsOn(project.tasks.getByName("packageClasses"))

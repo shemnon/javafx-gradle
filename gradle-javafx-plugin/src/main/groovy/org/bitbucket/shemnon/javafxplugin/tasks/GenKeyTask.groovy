@@ -41,6 +41,16 @@ import org.gradle.process.internal.ExecAction
  */
 class GenKeyTask extends ConventionTask {
 
+    @OutputFile
+    File keyStore
+
+    String alias
+    String dname
+    Integer validity // conventions don't play nice with primitives
+    String keyPass
+    String storePass
+    String storeType
+
     @TaskAction
     processResources() {
         if (getKeyStore().exists()) return
@@ -73,13 +83,4 @@ class GenKeyTask extends ConventionTask {
         exec.assertNormalExitValue()
     }
 
-    @OutputFile
-    File keyStore
-
-    String alias
-    String dname
-    Integer validity // conventions don't play nice with primitives
-    String keyPass
-    String storePass
-    String storeType
 }
