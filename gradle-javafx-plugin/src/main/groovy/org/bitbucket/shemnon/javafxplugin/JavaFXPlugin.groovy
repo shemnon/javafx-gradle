@@ -218,7 +218,6 @@ class JavaFXPlugin implements Plugin<Project> {
                 'systemProperties',
                 'updateMode',
                 'vendor',
-                'verbose',
                 'width',
         ].each {prop ->
             task.conventionMapping[prop] = {convention, aware -> project.javafx[prop] }
