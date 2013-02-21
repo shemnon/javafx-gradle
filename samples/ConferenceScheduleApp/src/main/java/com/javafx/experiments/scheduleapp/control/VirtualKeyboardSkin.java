@@ -54,7 +54,8 @@ import javafx.scene.text.Text;
  * Where you place the keyboard relative to the screen, how it is displayed, etc is
  * completely up to you.
  */
-public class VirtualKeyboardSkin extends SkinBase<VirtualKeyboard, BehaviorBase<VirtualKeyboard>> {
+public class VirtualKeyboardSkin
+        extends SkinBase<VirtualKeyboard> {
     private static final int GAP = 6;
 
     private List<List<Key>> board;
@@ -93,20 +94,11 @@ public class VirtualKeyboardSkin extends SkinBase<VirtualKeyboard, BehaviorBase<
      * @param behavior
      */
     public VirtualKeyboardSkin(VirtualKeyboard keyboard) {
-        super(keyboard, new BehaviorBase<VirtualKeyboard>(keyboard));
+        super(keyboard);
 
-        registerChangeListener(keyboard.typeProperty(), "type");
+        //registerChangeListener(keyboard.typeProperty(), "type");
+        keyboard.typeProperty().addListener(changeEvent -> rebuild());
         rebuild();
-    }
-
-    @Override protected void handleControlPropertyChanged(String propertyReference) {
-        // With Java 8 (or is it 7?) I can do switch on strings instead
-        if (propertyReference == "type") {
-            // The type has changed, so we will need to rebuild the entire keyboard.
-            // This happens whenever the user switches from one keyboard layout to
-            // another, such as by pressing the "ABC" key on a numeric layout.
-            rebuild();
-        }
     }
 
     /**
@@ -145,13 +137,13 @@ public class VirtualKeyboardSkin extends SkinBase<VirtualKeyboard, BehaviorBase<
     // the pref width is just some hard-coded value (although I could have maybe
     // done it based on the pref width of a text node with the right font).
     @Override protected double computePrefWidth(double height) {
-        final Insets insets = getInsets();
+        final Insets insets = getSkinnable().getInsets();
         return insets.getLeft() + (56 * numCols) + insets.getRight();
     }
 
     // Pref height is just some value. This isn't overly important.
     @Override protected double computePrefHeight(double width) {
-        final Insets insets = getInsets();
+        final Insets insets = getSkinnable().getInsets();
         return insets.getTop() + (80 * 5) + insets.getBottom();
     }
 
@@ -259,8 +251,8 @@ public class VirtualKeyboardSkin extends SkinBase<VirtualKeyboard, BehaviorBase<
         }
 
         protected KeyEvent event(EventType<KeyEvent> type) {
-            return KeyEvent.impl_keyEvent(getSkinnable(), chars, "", 0,
-                                          shiftDown, false, false, false, type);
+            return new KeyEvent(getSkinnable(), null, type, chars, "", KeyCode.UNDEFINED,
+                                          shiftDown, false, false, false);
         }
     }
 
@@ -341,8 +333,8 @@ public class VirtualKeyboardSkin extends SkinBase<VirtualKeyboard, BehaviorBase<
 
         protected KeyEvent event(EventType<KeyEvent> type) {
             if (type == KeyEvent.KEY_PRESSED || type == KeyEvent.KEY_RELEASED) {
-                return KeyEvent.impl_keyEvent(getSkinnable(), chars, chars, code.impl_getCode(),
-                                              shiftDown, false, false, false, type);
+                return new KeyEvent(getSkinnable(), null, type, chars, chars, code,
+                                              shiftDown, false, false, false);
             } else {
                 return super.event(type);
             }

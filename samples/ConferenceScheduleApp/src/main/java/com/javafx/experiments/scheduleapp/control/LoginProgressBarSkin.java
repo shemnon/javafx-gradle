@@ -31,7 +31,6 @@
  */
 package com.javafx.experiments.scheduleapp.control;
 
-import com.sun.javafx.scene.control.behavior.ProgressBarBehavior;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -46,7 +45,7 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
-public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehavior<ProgressBar>> {
+public class LoginProgressBarSkin extends SkinBase<ProgressBar> {
     /**
      * The track is rendered by the control itself, the bar though is provided by this skin.
      */
@@ -55,7 +54,7 @@ public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehav
     private Timeline widthTimeline = null;
     private DoubleProperty barWidth = new SimpleDoubleProperty(this, "barWidth", 0) {
         @Override protected void invalidated() {
-            requestLayout();
+            getSkinnable().requestLayout();
         }
     }; // between 0 and 1
 
@@ -66,7 +65,7 @@ public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehav
      **************************************************************************/
 
     public LoginProgressBarSkin(final ProgressBar control) {
-        super(control, new ProgressBarBehavior<ProgressBar>(control));
+        super(control);
         InvalidationListener listener = new InvalidationListener() {
             @Override public void invalidated(Observable valueModel) {
                 if (widthTimeline != null) widthTimeline.stop();
@@ -82,13 +81,13 @@ public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehav
         bar = new Region();
         bar.getStyleClass().setAll("bar");
         getChildren().setAll( bar);
-        requestLayout();
+        getSkinnable().requestLayout();
     }
 
     @Override
     public double getBaselineOffset() {
         double height = getSkinnable().getHeight();
-        return getInsets().getTop() + height;
+        return getSkinnable().getInsets().getTop() + height;
     }
 
     /***************************************************************************
@@ -98,11 +97,11 @@ public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehav
      **************************************************************************/
 
     @Override protected double computePrefWidth(double height) {
-        return Math.max(100, getInsets().getLeft() + bar.prefWidth(getWidth()) + getInsets().getRight());
+        return Math.max(100, getSkinnable().getInsets().getLeft() + bar.prefWidth(getSkinnable().getWidth()) + getSkinnable().getInsets().getRight());
     }
 
     @Override protected double computePrefHeight(double width) {
-        return getInsets().getTop() + bar.prefHeight(width) + getInsets().getBottom();
+        return getSkinnable().getInsets().getTop() + bar.prefHeight(width) + getSkinnable().getInsets().getBottom();
     }
 
     @Override protected void layoutChildren(final double x, final double y, final double w, final double h) {
@@ -112,7 +111,7 @@ public class LoginProgressBarSkin extends SkinBase<ProgressBar, ProgressBarBehav
             final Insets barInsets = bar.getInsets();
             bw = Math.max(barInsets.getLeft() + barInsets.getRight(), bw);
         }
-        final Insets insets = getInsets();
-        bar.resizeRelocate(x, y, bw, getHeight() - (insets.getTop() + insets.getBottom()));
+        final Insets insets = getSkinnable().getInsets();
+        bar.resizeRelocate(x, y, bw, getSkinnable().getHeight() - (insets.getTop() + insets.getBottom()));
     }
 }

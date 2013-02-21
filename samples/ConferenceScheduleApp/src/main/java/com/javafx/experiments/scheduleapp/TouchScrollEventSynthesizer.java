@@ -116,17 +116,17 @@ public class TouchScrollEventSynthesizer implements EventHandler {
                 }
                 if (clickThresholdBroken) {
                     // TODO
-                    Event.fireEvent(e.getTarget(), ScrollEvent.impl_scrollEvent(
+                    Event.fireEvent(e.getTarget(), new ScrollEvent(
                             ScrollEvent.SCROLL,
                             scrollDistX, scrollDistY,
                             scrollDistX, scrollDistY,
-                            ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
-                            ScrollEvent.VerticalTextScrollUnits.NONE, 0,
-                            0,
+                            me.isShiftDown(), me.isControlDown(), me.isAltDown(), me.isMetaDown(),
+                            true, false,
                             me.getX(), me.getY(),
                             me.getSceneX(), me.getSceneY(),
-                            me.isShiftDown(), me.isControlDown(), me.isAltDown(), me.isMetaDown(),
-                            true, false));
+                            ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
+                            ScrollEvent.VerticalTextScrollUnits.NONE, 0,
+                            0));
                 }
             } else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 handleRelease(me);
@@ -179,17 +179,17 @@ public class TouchScrollEventSynthesizer implements EventHandler {
                     final double dragStepY = mouseY - lastMouseY;
 
                     if (Math.abs(dragStepX) >= 1.0 || Math.abs(dragStepY) >= 1.0) {
-                        Event.fireEvent(me.getTarget(), ScrollEvent.impl_scrollEvent(
+                        Event.fireEvent(me.getTarget(), new ScrollEvent(
                                 ScrollEvent.SCROLL,
                                 dragStepX, dragStepY,
                                 (distanceX * get()), (distanceY * get()),
-                                ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
-                                ScrollEvent.VerticalTextScrollUnits.NONE, 0,
-                                0,
+                                me.isShiftDown(), me.isControlDown(), me.isAltDown(), me.isMetaDown(),
+                                true, true,
                                 me.getX(), me.getY(),
                                 me.getSceneX(), me.getSceneY(),
-                                me.isShiftDown(), me.isControlDown(), me.isAltDown(), me.isMetaDown(),
-                                true, true));
+                                ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
+                                ScrollEvent.VerticalTextScrollUnits.NONE, 0,
+                                0));
                     }
                     lastMouseX = mouseX;
                     lastMouseY = mouseY;
