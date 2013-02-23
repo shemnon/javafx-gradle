@@ -33,7 +33,6 @@ import com.sun.javafx.tools.packager.PackagerLib
 import com.sun.javafx.tools.packager.bundlers.Bundler
 import net.sf.image4j.codec.bmp.BMPEncoder
 import net.sf.image4j.codec.ico.ICOEncoder
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.bitbucket.shemnon.javafxplugin.IconInfo
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
@@ -41,6 +40,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.util.ConfigureUtil
 
 import javax.imageio.ImageIO
@@ -259,13 +259,13 @@ class JavaFXDeployTask extends ConventionTask {
             loadConventialIcons('volume')
             loadConventialIcons('setup')
         }
-        if (Os.isFamily(Os.FAMILY_MAC)) {
+        if (OperatingSystem.current().isMacOsX()) {
             processMacOSXIcons(destination);
         }
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        if (OperatingSystem.current().isWindows()) {
             processWindowsIcons(destination);
         }
-        if (Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)) {
+        if (OperatingSystem.current().isLinux()) {
             processLinuxIcons(destination)
         }
     }
