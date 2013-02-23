@@ -12,6 +12,18 @@ dependencies {
 
 javafx {
     mainClass = 'ensemble.Ensemble2'
+
+    icons {
+        shortcut = [
+                'icon-16.png', 'icon-16@2x.png',
+                'icon-32.png', 'icon-32@2x.png',
+                'icon-64.png',
+                'icon-128.png', 'icon-128@2x.png',
+                'icon-256.png',
+        ]
+        volume = shortcut
+        setup = 'icon-32.png'
+    }
 }
 
 
