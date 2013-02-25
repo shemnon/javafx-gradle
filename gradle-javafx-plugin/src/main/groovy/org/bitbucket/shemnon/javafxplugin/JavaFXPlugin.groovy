@@ -52,6 +52,14 @@ class JavaFXPlugin implements Plugin<Project> {
 
     private Project project
 
+    protected basicExtensionMapping = {prop, convention = null, aware = null ->
+        JavaFXPluginExtension ext = project.javafx;
+        JavaFXPluginExtension override = ext.getCurrentOverride();
+        def val = override == null ? null : override[prop]
+        return val ?: ext[prop]
+    }
+
+
     @Override
     void apply(Project project) {
         this.project = project
@@ -124,9 +132,11 @@ class JavaFXPlugin implements Plugin<Project> {
             project.configurations.archives.artifacts*.builtBy task
         }
 
-        task.conventionMapping.mainClass = {convention, aware -> project.javafx.mainClass }
-        task.conventionMapping.embedLauncher = {convention, aware -> project.javafx.embedLauncher }
-        task.conventionMapping.arguments = {convention, aware -> project.javafx.arguments}
+        [
+                'mainClass',
+                'embedLauncher',
+                'arguments'
+        ].each {prop -> task.conventionMapping[prop] = basicExtensionMapping.curry(prop) }
 
         task.conventionMapping.jarFile = {convention, aware ->
             project.tasks.getByName("jar").archivePath
@@ -219,10 +229,8 @@ class JavaFXPlugin implements Plugin<Project> {
                 'updateMode',
                 'vendor',
                 'width',
-        ].each {prop ->
-            task.conventionMapping[prop] = {convention, aware -> project.javafx[prop] }
+        ].each {prop -> task.conventionMapping[prop] = basicExtensionMapping.curry(prop) }
 
-        }
         // version is special
         task.conventionMapping.version = {convention, aware -> ('unspecified' == project.version) ? '0.0.0' : project.version }
 
@@ -249,12 +257,16 @@ class JavaFXPlugin implements Plugin<Project> {
             description: 'Runs the application.',
             group: 'Execution')
 
+        configureRunParams(project, task)
+    }
+
+    protected void configureRunParams(Project project, JavaExec task) {
         task.classpath = project.sourceSets.main.runtimeClasspath
-        task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
+        task.conventionMapping.main = basicExtensionMapping.curry('mainClass')
         task.doFirst {
-            task.jvmArgs project.javafx.jvmArgs
-            task.systemProperties project.javafx.systemProperties
-            if (!task.args) task.args = project.javafx.arguments
+            task.jvmArgs basicExtensionMapping('jvmArgs')
+            task.systemProperties basicExtensionMapping('systemProperties')
+            if (!task.args) task.args = basicExtensionMapping('arguments')
         }
     }
 
@@ -263,13 +275,7 @@ class JavaFXPlugin implements Plugin<Project> {
             description: 'Runs the applicaiton and sets up debugging on port 5005.',
             group: 'Execution')
 
-        task.classpath = project.sourceSets.main.runtimeClasspath
-        task.conventionMapping.main = {convention, aware -> project.javafx.mainClass }
-        task.doFirst {
-            task.jvmArgs project.javafx.jvmArgs
-            task.systemProperties project.javafx.systemProperties
-            if (!task.args) task.args = project.javafx.arguments
-        }
+        configureRunParams(project, task)
         task.debug = true
     }
 

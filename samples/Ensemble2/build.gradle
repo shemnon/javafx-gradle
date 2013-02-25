@@ -24,6 +24,14 @@ javafx {
         volume = shortcut
         setup = 'icon-32.png'
     }
+
+    windows {
+        appID = 'b533f663-1efd-489f-b910-4c7ec20c7fd0'
+    }
+
+    macosx {
+        category = 'public.app-category.developer-tools'
+    }
 }
 
 

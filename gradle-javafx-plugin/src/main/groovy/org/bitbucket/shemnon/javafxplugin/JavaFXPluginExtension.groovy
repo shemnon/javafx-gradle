@@ -27,12 +27,15 @@
 package org.bitbucket.shemnon.javafxplugin
 
 import com.sun.javafx.tools.packager.DeployParams
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.util.ConfigureUtil
 import org.gradle.api.file.FileCollection
 
 import java.awt.image.BufferedImage
 
 class JavaFXPluginExtension { //extends BasePluginConvention {
+
+    protected Map<String, JavaFXPluginExtension> overrides = [:]
 
     // preliminaries
     FileCollection jfxrtJar
@@ -108,6 +111,46 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
                 addIcon(k, v)
             }
         }
+    }
+
+    def windows(Closure closure) {
+        if (!overrides.containsKey('windows')) {
+             overrides.windows = new JavaFXPluginExtension()
+        }
+        ConfigureUtil.configure(closure, overrides.windows)
+    }
+
+    def macosx(Closure closure) {
+        if (!overrides.containsKey('macosx')) {
+             overrides.macosx = new JavaFXPluginExtension()
+        }
+        ConfigureUtil.configure(closure, overrides.macosx)
+    }
+
+    def linux(Closure closure) {
+        if (!overrides.containsKey('linux')) {
+             overrides.linux = new JavaFXPluginExtension()
+        }
+        ConfigureUtil.configure(closure, overrides.linux)
+    }
+
+    JavaFXPluginExtension getCurrentOverride() {
+        def currentOS = OperatingSystem.current();
+        if (currentOS.isWindows()) {
+            return overrides['windows']
+        }
+        if (currentOS.isLinux()) {
+            return overrides['linux']
+        }
+        if (currentOS.isMacOsX()) {
+            return overrides['macosx']
+        }
+
+        return null;
+    }
+
+    JavaFXPluginExtension getOverride(String os) {
+      return overrides.get(os)
     }
 
     protected void addIcon(String kind, String href) {
