@@ -478,16 +478,16 @@ public class SpeakersPage extends Page implements ChangeListener<String> {
             }
         }
         
-        @Override protected Node impl_pickNodeLocal(double localX, double localY) {
-            if (contains(localX, localY)) {
-                if (this.expansion.get() > 0) {
-                    final Node superPick = super.impl_pickNodeLocal(localX, localY);
-                    if (superPick != null) return superPick;
-                }
-                return this;
-            }
-            return null;
-        }
+//        @Override protected Node impl_pickNodeLocal(double localX, double localY) {
+//            if (contains(localX, localY)) {
+//                if (this.expansion.get() > 0) {
+//                    final Node superPick = super.impl_pickNodeLocal(localX, localY);
+//                    if (superPick != null) return superPick;
+//                }
+//                return this;
+//            }
+//            return null;
+//        }
 
         // CELL METHODS
         @Override protected void updateItem(Speaker speaker, boolean empty) {

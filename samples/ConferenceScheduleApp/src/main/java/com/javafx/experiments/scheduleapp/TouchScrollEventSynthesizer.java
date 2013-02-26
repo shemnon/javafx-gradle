@@ -38,6 +38,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.PickResult;
 import javafx.scene.input.ScrollEvent;
 import javafx.util.Duration;
 
@@ -126,7 +127,7 @@ public class TouchScrollEventSynthesizer implements EventHandler {
                             me.getSceneX(), me.getSceneY(),
                             ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
                             ScrollEvent.VerticalTextScrollUnits.NONE, 0,
-                            0));
+                            0, null));
                 }
             } else if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 handleRelease(me);
@@ -189,7 +190,7 @@ public class TouchScrollEventSynthesizer implements EventHandler {
                                 me.getSceneX(), me.getSceneY(),
                                 ScrollEvent.HorizontalTextScrollUnits.NONE, 0,
                                 ScrollEvent.VerticalTextScrollUnits.NONE, 0,
-                                0));
+                                0, null));
                     }
                     lastMouseX = mouseX;
                     lastMouseY = mouseY;
