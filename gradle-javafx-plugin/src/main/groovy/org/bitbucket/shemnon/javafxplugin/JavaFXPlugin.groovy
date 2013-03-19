@@ -27,6 +27,7 @@
 package org.bitbucket.shemnon.javafxplugin
 
 import org.gradle.api.GradleException
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXDeployTask
@@ -292,7 +293,11 @@ class JavaFXPlugin implements Plugin<Project> {
                 ivy  { url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release' }
             }
             project.dependencies {
-                scenicview 'com.fxexperience.scenicview:scenicview:1.3.0'
+                if (JavaVersion.current().java8Compatible) {
+                    scenicview 'com.fxexperience.scenicview:scenicview:8.0-dp1'
+                } else {
+                    scenicview 'com.fxexperience.scenicview:scenicview:1.3.0'
+                }
             }
 
             project.tasks.findAll {it.group == 'Execution' && it instanceof JavaExec}.each {JavaExec execTask ->
