@@ -27,7 +27,6 @@
 package org.bitbucket.shemnon.javafxplugin.tasks
 
 import com.sun.javafx.tools.packager.DeployParams
-import com.sun.javafx.tools.packager.DeployParams.RunMode
 import com.sun.javafx.tools.packager.Log
 import com.sun.javafx.tools.packager.PackagerLib
 import com.sun.javafx.tools.packager.bundlers.Bundler
@@ -73,7 +72,7 @@ class JavaFXDeployTask extends ConventionTask {
     // deploy/info attributes
     String category
     String copyright
-    String description
+    String deployDescription
     String licenseType
     String vendor
     List<IconInfo> iconInfos = []
@@ -108,7 +107,6 @@ class JavaFXDeployTask extends ConventionTask {
         //boolean isSwingApp;
         //boolean includeDT;
         //java.lang.String placeholder;
-        //java.lang.String appId;
         //java.util.List<com.sun.javafx.tools.ant.Callback> callbacks;
         //java.util.List<com.sun.javafx.tools.packager.DeployParams.Template> templates;
         //java.lang.String jrePlatform;
@@ -150,7 +148,7 @@ class JavaFXDeployTask extends ConventionTask {
 
         deployParams.verbose = getVerbose()
 
-        deployParams.id = getAppID()
+        deployParams.appId = getAppID()
         deployParams.appName = getAppName() // FIXME duplicate with title
         deployParams.applicationClass = getMainClass()
 
@@ -161,7 +159,7 @@ class JavaFXDeployTask extends ConventionTask {
         deployParams.title = getAppName()
         deployParams.category = getCategory()
         deployParams.copyright = getCopyright()
-        deployParams.description = getDescription()
+        deployParams.description = getDeployDescription()
         deployParams.licenseType = getLicenseType()
         deployParams.vendor = getVendor()
 
@@ -253,7 +251,7 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     protected void processIcons(File destination) {
-        if (iconInfos.isEmpty()) {
+        if (getIconInfos().isEmpty()) {
             // if nothing is configured, use the convention
             loadConventialIcons('shortcut')
             loadConventialIcons('volume')
@@ -354,7 +352,7 @@ class JavaFXDeployTask extends ConventionTask {
 
     protected void processWindowsIco(String kind, File destination) {
         Map<Integer, BufferedImage> images = new TreeMap<Integer, BufferedImage>()
-        for (IconInfo ii : iconInfos) {
+        for (IconInfo ii : getIconInfos()) {
             if (kind == ii.kind) {
                 BufferedImage icon = getImage(ii)
                 if (icon == null) {
@@ -385,7 +383,7 @@ class JavaFXDeployTask extends ConventionTask {
     }
 
     protected void processLinuxIcons(File destination) {
-        IconInfo largestIcon
+        IconInfo largestIcon = null
         for (IconInfo ii : getIconInfos()) {
             if ('shortcut' == ii.kind) {
                 BufferedImage icon = getImage(ii)
