@@ -70,6 +70,8 @@ class JavaFXDeployTask extends ConventionTask {
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
 
+    File javaRuntime
+
     // deploy/info attributes
     String category
     String copyright
@@ -187,6 +189,10 @@ class JavaFXDeployTask extends ConventionTask {
         getJvmArgs().each { deployParams.addJvmArg(it) }
         getSystemProperties().each {k, v -> deployParams.addJvmProperty(k, v)}
         deployParams.arguments = getArguments()
+
+        if (getJavaRuntime() != null) {
+            deployParams.javaRuntimeSource = getJavaRuntime()
+        }
 
         File packageResourcesOutput = project.sourceSets['package'].output.resourcesDir
         processIcons(packageResourcesOutput)

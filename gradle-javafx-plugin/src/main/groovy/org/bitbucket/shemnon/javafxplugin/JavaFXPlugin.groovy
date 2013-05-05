@@ -220,6 +220,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 'iconInfos',
                 'id',
                 'installSystemWide',
+                'javaRuntime',
                 'jvmArgs',
                 'licenseType',
                 'mainClass',

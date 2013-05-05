@@ -35,16 +35,19 @@ javafx {
     windows {
         id = 'c533f663-1efd-489f-b910-4c7ec20c7fd0'
         category='JavaFX Demos'
+        javaRuntime = file('C:/Program Files (x86)/Java/jdk1.7.0_21')
     }
 
     macosx {
         id = 'net.java.openjdk.openjfx.Ensemble2'
         category = 'public.app-category.developer-tools'
+        javaRuntime = file('/Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/')
     }
 
     linux {
         // linux doesn't care about id, it goes un-used at the moment
         category='Development'
+        javaRuntime='/usr/lib/jvm/java-7-oracle'
     }
 
     debugKey {

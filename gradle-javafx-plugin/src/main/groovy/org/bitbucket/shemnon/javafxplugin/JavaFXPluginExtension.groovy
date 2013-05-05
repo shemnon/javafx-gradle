@@ -70,6 +70,8 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
 
+    File javaRuntime
+
     // deploy/info attributes
     String category
     String copyright
