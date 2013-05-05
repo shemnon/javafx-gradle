@@ -52,6 +52,7 @@ class JavaFXDeployTask extends ConventionTask {
 
     FileCollection antJavaFXJar
 
+    String id
     String appID
     String appName
 
@@ -149,6 +150,7 @@ class JavaFXDeployTask extends ConventionTask {
         deployParams.verbose = getVerbose()
 
         deployParams.appId = getAppID()
+        deployParams.id = getId()
         deployParams.appName = getAppName() // FIXME duplicate with title
         deployParams.applicationClass = getMainClass()
 

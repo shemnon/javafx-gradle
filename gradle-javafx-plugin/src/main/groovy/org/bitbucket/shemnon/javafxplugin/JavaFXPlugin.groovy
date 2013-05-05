@@ -218,6 +218,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 'embedJNLP',
                 'height',
                 'iconInfos',
+                'id',
                 'installSystemWide',
                 'jvmArgs',
                 'licenseType',

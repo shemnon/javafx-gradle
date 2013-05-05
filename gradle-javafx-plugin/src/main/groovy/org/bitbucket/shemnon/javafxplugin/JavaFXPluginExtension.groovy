@@ -50,6 +50,7 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
     boolean embedLauncher = true
 
     // app info
+    String id
     String appID
     String appName
 
@@ -187,7 +188,7 @@ class IconInfo {
     double scale = 1 // for retina
     DeployParams.RunMode mode = DeployParams.RunMode.ALL
     private BufferedImage _image
-    protected file
+    File file
 
     public IconInfo(String href) {
         this.href = href

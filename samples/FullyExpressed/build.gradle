@@ -31,6 +31,22 @@ version = '0.0.0'
 
 javafx {
 
+    // not every possible platform override, but ones that have a known impact
+    windows {
+        id = 'c533f663-1efd-489f-b910-4c7ec20c7fd0'
+        category='JavaFX Demos'
+    }
+
+    macosx {
+        id = 'net.java.openjdk.openjfx.Ensemble2'
+        category = 'public.app-category.developer-tools'
+    }
+
+    linux {
+        // linux doesn't care about id, it goes un-used at the moment
+        category='Development'
+    }
+
     debugKey {
         alias = 'buggyKey'
         keyPass = '123456'
