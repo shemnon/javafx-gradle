@@ -44,6 +44,7 @@ import org.bitbucket.shemnon.javafxplugin.tasks.JavaFXSignJarTask
 import org.bitbucket.shemnon.javafxplugin.tasks.GenKeyTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.internal.os.OperatingSystem
 
 
 class JavaFXPlugin implements Plugin<Project> {
@@ -51,13 +52,36 @@ class JavaFXPlugin implements Plugin<Project> {
     public static final String PROVIDED_COMPILE_CONFIGURATION_NAME = "providedCompile";
     public static final String PROVIDED_RUNTIME_CONFIGURATION_NAME = "providedRuntime";
 
+    static String getOSProfileName() {
+        def currentOS = OperatingSystem.current();
+        if (currentOS.isWindows()) {
+            return 'windows'
+        }
+        if (currentOS.isLinux()) {
+            return 'linux'
+        }
+        if (currentOS.isMacOsX()) {
+            return 'macosx'
+        }
+
+        return null;
+    }
+
     private Project project
+    @Lazy private String[] profiles = ([] + project.getProperties().profiles?.split(',') + getOSProfileName()).flatten().findAll {
+            project.javafx.getProfile(it) != null
+        }
 
     protected basicExtensionMapping = {prop, convention = null, aware = null ->
         JavaFXPluginExtension ext = project.javafx;
-        JavaFXPluginExtension override = ext.getCurrentOverride();
-        def val = override == null ? null : override[prop]
-        return val ?: ext[prop]
+        for (profile in profiles) {
+            JavaFXPluginExtension override = ext.getProfile(profile)
+            def val = override[prop]
+            if (val != null) {
+                return val;
+            }
+        }
+        return ext[prop]
     }
 
 

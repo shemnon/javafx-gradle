@@ -27,7 +27,6 @@
 package org.bitbucket.shemnon.javafxplugin
 
 import com.sun.javafx.tools.packager.DeployParams
-import org.gradle.internal.os.OperatingSystem
 import org.gradle.util.ConfigureUtil
 import org.gradle.api.file.FileCollection
 
@@ -37,7 +36,7 @@ class JavaFXPluginExtension {
 
     public static final String NO_RUNTIME = '<NO RUNTIME>'
 
-    protected Map<String, JavaFXPluginExtension> overrides = [:]
+    protected Map<String, JavaFXPluginExtension> profileMap = [:]
 
     // preliminaries
     FileCollection jfxrtJar
@@ -118,44 +117,12 @@ class JavaFXPluginExtension {
         }
     }
 
-    def windows(Closure closure) {
-        if (!overrides.containsKey('windows')) {
-             overrides.windows = new JavaFXPluginExtension()
-        }
-        ConfigureUtil.configure(closure, overrides.windows)
+    def profiles(Closure closure) {
+        ConfigureUtil.configure(closure, new MethodToMap(map: profileMap))
     }
 
-    def macosx(Closure closure) {
-        if (!overrides.containsKey('macosx')) {
-             overrides.macosx = new JavaFXPluginExtension()
-        }
-        ConfigureUtil.configure(closure, overrides.macosx)
-    }
-
-    def linux(Closure closure) {
-        if (!overrides.containsKey('linux')) {
-             overrides.linux = new JavaFXPluginExtension()
-        }
-        ConfigureUtil.configure(closure, overrides.linux)
-    }
-
-    JavaFXPluginExtension getCurrentOverride() {
-        def currentOS = OperatingSystem.current();
-        if (currentOS.isWindows()) {
-            return overrides['windows']
-        }
-        if (currentOS.isLinux()) {
-            return overrides['linux']
-        }
-        if (currentOS.isMacOsX()) {
-            return overrides['macosx']
-        }
-
-        return null;
-    }
-
-    JavaFXPluginExtension getOverride(String os) {
-      return overrides.get(os)
+    JavaFXPluginExtension getProfile(String profile) {
+      return profileMap.get(profile)
     }
 
     protected void addIcon(String kind, String href) {
@@ -202,4 +169,18 @@ class IconInfo {
         ConfigureUtil.configure(configure, this)
     }
 
+}
+
+class MethodToMap {
+
+    Map map
+
+    Object methodMissing(String name, args) {
+        if (args.length == 1 && args[0] instanceof Closure) {
+            map[name] = [:]
+            ConfigureUtil.configure(args[0], map[name])
+        } else {
+            throw new MissingMethodException(name, JavaFXPluginExtension.class, args, false);
+        }
+    }
 }
