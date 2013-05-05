@@ -33,7 +33,9 @@ import org.gradle.api.file.FileCollection
 
 import java.awt.image.BufferedImage
 
-class JavaFXPluginExtension { //extends BasePluginConvention {
+class JavaFXPluginExtension {
+
+    public static final String NO_RUNTIME = '<NO RUNTIME>'
 
     protected Map<String, JavaFXPluginExtension> overrides = [:]
 
@@ -70,7 +72,7 @@ class JavaFXPluginExtension { //extends BasePluginConvention {
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
 
-    File javaRuntime
+    String javaRuntime
 
     // deploy/info attributes
     String category

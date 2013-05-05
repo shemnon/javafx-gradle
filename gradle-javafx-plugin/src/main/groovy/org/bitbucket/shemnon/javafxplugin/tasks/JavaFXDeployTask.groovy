@@ -33,6 +33,7 @@ import com.sun.javafx.tools.packager.bundlers.Bundler
 import net.sf.image4j.codec.bmp.BMPEncoder
 import net.sf.image4j.codec.ico.ICOEncoder
 import org.bitbucket.shemnon.javafxplugin.IconInfo
+import org.bitbucket.shemnon.javafxplugin.JavaFXPluginExtension
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputDirectory
@@ -40,6 +41,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.tooling.BuildException
 import org.gradle.util.ConfigureUtil
 
 import javax.imageio.ImageIO
@@ -70,7 +72,7 @@ class JavaFXDeployTask extends ConventionTask {
     Map<String, String> systemProperties = [:]
     List<String> arguments = []
 
-    File javaRuntime
+    String javaRuntime
 
     // deploy/info attributes
     String category
@@ -190,8 +192,22 @@ class JavaFXDeployTask extends ConventionTask {
         getSystemProperties().each {k, v -> deployParams.addJvmProperty(k, v)}
         deployParams.arguments = getArguments()
 
-        if (getJavaRuntime() != null) {
-            deployParams.javaRuntimeSource = getJavaRuntime()
+        String runtime = getJavaRuntime()
+        if (runtime != null) {
+            File rtFile
+            if (runtime == JavaFXPluginExtension.NO_RUNTIME) {
+                getLogger().info("Java runtime to be bundled: none, bundle will rely on locally installed runtimes")
+                rtFile = null
+            } else {
+                getLogger().info("Java runtime to be bundled: $runtime")
+                rtFile = new File(runtime)
+                if (!rtFile.exists()) {
+                    throw new BuildException("No files found at specified runime path: $runtime")
+                }
+            }
+            deployParams.javaRuntimeSource = rtFile
+        } else {
+            getLogger().info("Java runtime to be bundled: the runtime executing the Gradle build")
         }
 
         File packageResourcesOutput = project.sourceSets['package'].output.resourcesDir
