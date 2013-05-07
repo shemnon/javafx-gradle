@@ -34,6 +34,7 @@ import net.sf.image4j.codec.bmp.BMPEncoder
 import net.sf.image4j.codec.ico.ICOEncoder
 import org.bitbucket.shemnon.javafxplugin.IconInfo
 import org.bitbucket.shemnon.javafxplugin.JavaFXPluginExtension
+import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.InputDirectory
@@ -41,7 +42,6 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.tooling.BuildException
 import org.gradle.util.ConfigureUtil
 
 import javax.imageio.ImageIO
@@ -202,7 +202,7 @@ class JavaFXDeployTask extends ConventionTask {
                 getLogger().info("Java runtime to be bundled: $runtime")
                 rtFile = new File(runtime)
                 if (!rtFile.exists()) {
-                    throw new BuildException("No files found at specified runime path: $runtime")
+                    throw new GradleException("No Java Runtime found at specified runime path: $runtime")
                 }
             }
             deployParams.javaRuntimeSource = rtFile

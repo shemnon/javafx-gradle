@@ -48,7 +48,8 @@ javafx {
         linux {
             // linux doesn't care about id, it goes un-used at the moment
             category = 'Development'
-            javaRuntime = '/usr/lib/jvm/java-7-oracle'
+            // good luck finding a standard location for the JDK
+            //javaRuntime = '/usr/lib/jvm/java-7-oracle'
         }
     }
 
