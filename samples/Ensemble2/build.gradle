@@ -25,13 +25,15 @@ javafx {
         setup = 'icon-32.png'
     }
 
-    windows {
-        id = 'b533f663-1efd-489f-b910-4c7ec20c7fd0'
-    }
+    profiles {
+        windows {
+            id = 'b533f663-1efd-489f-b910-4c7ec20c7fd0'
+        }
 
-    macosx {
-        id = 'net.java.openjdk.openjfx.Ensemble2'
-        category = 'public.app-category.developer-tools'
+        macosx {
+            id = 'net.java.openjdk.openjfx.Ensemble2'
+            category = 'public.app-category.developer-tools'
+        }
     }
 }
 
