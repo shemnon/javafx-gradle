@@ -101,13 +101,7 @@ class JavaFXPlugin implements Plugin<Project> {
             mainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
             appName = project.name //FIXME capatalize
             packaging = 'all'
-            debugKey {
-                alias = 'javafxdebugkey'
-                keyPass = 'JavaFX'
-                keyStore = new File(project.projectDir, 'debug.keyStore')
-                storePass = 'JavaFX'
-            }
-            signingMode = 'debug'
+            signingMode = 'release'
         }
 
 
@@ -126,6 +120,7 @@ class JavaFXPlugin implements Plugin<Project> {
         configureJavaFXJarTask(project)
         configureGenerateDebugKeyTask(project)
         configureJavaFXSignJarTask(project)
+        configureJFXCopyLibsTask(project)
         configureJFXDeployTask(project)
         configureScenicViewTask(project)
         configureRunTask(project)
@@ -175,14 +170,18 @@ class JavaFXPlugin implements Plugin<Project> {
 
     private configureGenerateDebugKeyTask(Project project) {
         def task = project.task("generateDebugKey", type: GenKeyTask,
-                description: "Generates the JAvaFX Debug Key.",
+                description: "Generates the JavaFX Debug Key.",
                 group: 'Build')
 
-        task.conventionMapping.alias     = {convention, aware -> project.javafx.debugKey.alias }
-        task.conventionMapping.keyPass   = {convention, aware -> project.javafx.debugKey.keyPass }
-        task.conventionMapping.keyStore  = {convention, aware -> project.javafx.debugKey.keyStore }
-        task.conventionMapping.storePass = {convention, aware -> project.javafx.debugKey.storePass }
-        task.conventionMapping.storeType = {convention, aware -> project.javafx.debugKey.storeType }
+        project.afterEvaluate {
+            task.enabled = task.enabled && project.javafx.debugKey != null
+        }
+
+        task.conventionMapping.alias     = {convention, aware -> project.javafx.debugKey?.alias }
+        task.conventionMapping.keyPass   = {convention, aware -> project.javafx.debugKey?.keyPass }
+        task.conventionMapping.keyStore  = {convention, aware -> project.javafx.debugKey?.keyStore }
+        task.conventionMapping.storePass = {convention, aware -> project.javafx.debugKey?.storePass }
+        task.conventionMapping.storeType = {convention, aware -> project.javafx.debugKey?.storeType }
         task.conventionMapping.dname     = {convention, aware -> 'CN=JavaFX Gradle Plugin Default Debug Key, O=JavaFX Debug' }
         task.conventionMapping.validity  = {convention, aware -> ((365.25) * 25 as int) /* 25 years */ }
     }
@@ -194,7 +193,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 dependsOn: 'jfxJar')
         project.afterEvaluate {
             project.configurations.archives.artifacts*.builtBy task
-
+            task.enabled = task.enabled && (project.javafx.debugKey != null || project.javafx.releaseKey != null)
         }
 
         ['alias', 'keyPass', 'storePass', 'storeType'].each { prop ->
@@ -222,7 +221,27 @@ class JavaFXPlugin implements Plugin<Project> {
         }
 
         task.dependsOn(project.tasks.getByName("jfxJar"))
-        task.dependsOn(project.tasks.getByName("generateDebugKey"))
+    }
+
+    private configureJFXCopyLibsTask(Project project) {
+        def task = project.task("jfxCopyLibs")
+
+        task.doLast {
+            FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
+            Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
+            project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it}).
+                    findAll {!it.directory}.
+                    each {
+                        ant.copy(
+                                file: it,
+                                toDir: project.libsDir,
+                                overwrite: false
+                        )
+                    }
+        }
+
+        task.dependsOn(project.tasks.getByName("jfxSignJar"))
+        task.dependsOn(project.tasks.getByName("jfxJar"))
     }
 
     private configureJFXDeployTask(Project project) {
@@ -273,7 +292,7 @@ class JavaFXPlugin implements Plugin<Project> {
 
         task.conventionMapping.distsDir = {convention, aware -> project.distsDir }
 
-        task.dependsOn(project.tasks.getByName("jfxSignJar"))
+        task.dependsOn(project.tasks.getByName("jfxCopyLibs"))
         task.dependsOn(project.tasks.getByName("packageClasses"))
 
         project.tasks.getByName("assemble").dependsOn(task)

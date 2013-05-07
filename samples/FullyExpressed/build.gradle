@@ -121,6 +121,10 @@ But really, you should live with the conventions when appropriate.'''
     }
 }
 
+jfxSignJar {
+    enabled = false
+}
+
 jfxDeploy {
     // verbose output of the deployment, to the info chanel
     // it leaves files in the temp dir if set to true
