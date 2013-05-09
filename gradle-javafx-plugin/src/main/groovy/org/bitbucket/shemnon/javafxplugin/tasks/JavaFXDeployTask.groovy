@@ -202,10 +202,14 @@ class JavaFXDeployTask extends ConventionTask {
                 getLogger().info("Java runtime to be bundled: $runtime")
                 rtFile = new File(runtime)
                 if (!rtFile.exists()) {
-                    throw new GradleException("No Java Runtime found at specified runime path: $runtime")
+                    throw new GradleException("No Java Runtime found at specified runtime path: $runtime")
                 }
             }
-            deployParams.javaRuntimeSource = rtFile
+            try {
+                deployParams.javaRuntimeSource = rtFile
+            } catch (MissingPropertyException ignored) {
+                throw new GradleException ("JavaFXDeployTask.javaRuntime is only available in JavaFX 8 or later, aborting build.")
+            }
         } else {
             getLogger().info("Java runtime to be bundled: the runtime executing the Gradle build")
         }
