@@ -122,8 +122,9 @@ But really, you should live with the conventions when appropriate.'''
     }
 }
 
-jfxSignJar {
-    enabled = false
+compileJava {
+    sourceCompatibility = 7
+    targetCompatibility = 7
 }
 
 jfxDeploy {
