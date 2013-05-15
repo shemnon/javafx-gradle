@@ -98,7 +98,6 @@ class JavaFXPlugin implements Plugin<Project> {
         project.javafx {
             jfxrtJar = jfxrtJarFile
             antJavaFXJar = project.files(findAntJavaFXJar())
-            mainClass = "${project.group}${(project.group&&project.name)?'.':''}${project.name}${(project.group||project.name)?'.':''}Main"
             appName = project.name //FIXME capatalize
             packaging = 'all'
             signingMode = 'release'
@@ -125,6 +124,18 @@ class JavaFXPlugin implements Plugin<Project> {
         configureScenicViewTask(project)
         configureRunTask(project)
         configureDebugTask(project)
+
+        def mains = []
+        project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].allJava.visit {
+            if (it.relativePath.lastName == 'Main.java') {
+                mains.add(it.relativePath.replaceLastName('Main').pathString.replace('/', '.'))
+            }
+        }
+
+        if (mains.size() == 1) {
+            project.javafx.mainClass = mains[0]
+        }
+
     }
 
 
