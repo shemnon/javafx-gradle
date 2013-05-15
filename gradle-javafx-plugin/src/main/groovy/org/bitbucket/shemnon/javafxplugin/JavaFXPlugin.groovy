@@ -368,7 +368,7 @@ class JavaFXPlugin implements Plugin<Project> {
         def jfxrtHome = System.env['JFXRT_HOME']
         if (jfxrtHome) {
             try {
-                jfxrtJar = project.fileTree(dir: jfxrtHome, include: "**/jfxrt.jar").singleFile
+                jfxrtJar = project.fileTree(dir: jfxrtHome, include: ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt/jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar']).singleFile
             } catch (IllegalStateException ignore) {
                 // no file or two files
             }
@@ -381,7 +381,7 @@ class JavaFXPlugin implements Plugin<Project> {
                 javaHome = System.properties['java.home']
             }
             try {
-                jfxrtJar = project.fileTree(dir: javaHome, include: "**/jfxrt.jar").singleFile
+                jfxrtJar = project.fileTree(dir: javaHome, include: ['lib/jfxrt.jar', 'lib/ext/jfxrt/jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar']).singleFile
             } catch (IllegalStateException ignore) {
                 // no file or two files
             }
