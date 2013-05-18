@@ -1,0 +1,9 @@
+include 'brickbreaker'
+include 'Ensemble2'
+include 'FullyExpressed'
+include 'FXML-LoginDemo'
+include 'SwingInterop'
+
+//JDK 8
+//includeFlat 'ConfrenceScheduleApp'
+//includeFlat 'Modena'
