@@ -49,7 +49,7 @@ public class InsetTextButtonSample extends Sample {
 
     public InsetTextButtonSample() {
 
-        String insetTextCss = InsetTextButtonSample.class.getResource("InsetTextButton.bss").toExternalForm();
+        String insetTextCss = InsetTextButtonSample.class.getResource("InsetTextButton.css").toExternalForm();
         VBox vbox = VBoxBuilder.create().id("insettextvbox").spacing(10).padding(new Insets(10)).children(
                 ButtonBuilder.create().text("Inset Text Button").id("button1").build(),
                 ButtonBuilder.create().text("Plain Text Button").id("button2").build()).build();

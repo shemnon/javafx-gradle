@@ -37,6 +37,9 @@ javafx {
     }
 }
 
+cssToBin {
+    enabled = false //7u21 has some font bugs in the BSS code
+}
 
 // App specific stuff, take the local sample sources in as resources and index them
 task copySamples (type:Copy) {

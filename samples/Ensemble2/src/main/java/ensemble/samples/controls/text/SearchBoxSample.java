@@ -55,7 +55,7 @@ import javafx.scene.layout.VBoxBuilder;
 public class SearchBoxSample extends Sample {
 
     public SearchBoxSample() {
-        String searchBoxCss = SearchBoxSample.class.getResource("SearchBox.bss").toExternalForm();
+        String searchBoxCss = SearchBoxSample.class.getResource("SearchBox.css").toExternalForm();
         VBox vbox = VBoxBuilder.create().build();
         vbox.getStylesheets().add(searchBoxCss);
         vbox.setPrefWidth(200);
