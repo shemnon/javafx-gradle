@@ -75,7 +75,7 @@ class JavaFXPlugin implements Plugin<Project> {
     protected basicExtensionMapping = {prop, convention = null, aware = null ->
         JavaFXPluginExtension ext = project.javafx;
         for (profile in profiles) {
-            JavaFXPluginExtension override = ext.getProfile(profile)
+            Map override = ext.getProfile(profile)
             def val = override[prop]
             if (val != null) {
                 return val;
@@ -96,22 +96,11 @@ class JavaFXPlugin implements Plugin<Project> {
 
         def jfxrtJarFile = project.files(findJFXJar())
         project.javafx {
-            profileMap = [:]
             jfxrtJar = jfxrtJarFile
             antJavaFXJar = project.files(findAntJavaFXJar())
-            signingMode = 'release'
-            embedLauncher = true
             appName = project.name //FIXME capatalize
             packaging = 'all'
-            width = 1024
-            height = 768
-            embedJNLP = false
-            updateMode = "background"
-            offlineAllowed = true
-            jvmArgs = []
-            systemProperties = [:]
-            arguments = []
-            iconInfos = []
+            signingMode = 'release'
         }
 
 

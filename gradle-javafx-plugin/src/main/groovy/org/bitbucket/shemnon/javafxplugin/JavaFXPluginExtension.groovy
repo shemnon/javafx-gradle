@@ -36,7 +36,7 @@ class JavaFXPluginExtension {
 
     public static final String NO_RUNTIME = '<NO RUNTIME>'
 
-    protected Map<String, JavaFXPluginExtension> profileMap
+    protected Map<String, Map> profileMap = [:]
 
     // preliminaries
     FileCollection jfxrtJar
@@ -48,7 +48,7 @@ class JavaFXPluginExtension {
 
     String signingMode
 
-    boolean embedLauncher
+    boolean embedLauncher = true
 
     // app info
     String id
@@ -58,18 +58,18 @@ class JavaFXPluginExtension {
     String packaging
 
     // JNLP Packaging
-    int width
-    int height
-    boolean embedJNLP
-    String updateMode
-    boolean offlineAllowed
+    int width = 1024
+    int height = 768
+    boolean embedJNLP = false
+    String updateMode = "background"
+    boolean offlineAllowed = true
     String codebase
 
     // runtime stuff
     String mainClass
-    List<String> jvmArgs
-    Map<String, String> systemProperties
-    List<String> arguments
+    List<String> jvmArgs = []
+    Map<String, String> systemProperties = [:]
+    List<String> arguments = []
 
     String javaRuntime
 
@@ -85,7 +85,7 @@ class JavaFXPluginExtension {
     boolean menu
     boolean shortcut
 
-    protected List<IconInfo> iconInfos
+    protected List<IconInfo> iconInfos = []
     protected List<IconInfo> getIconInfos() { return iconInfos}
     protected void setIconInfos(List<IconInfo> icons) {iconInfos = icons}
 
@@ -120,7 +120,7 @@ class JavaFXPluginExtension {
         ConfigureUtil.configure(closure, new MethodToMap(map: profileMap))
     }
 
-    JavaFXPluginExtension getProfile(String profile) {
+    Map getProfile(String profile) {
         return profileMap.get(profile)
     }
 
