@@ -220,7 +220,7 @@ class JavaFXPlugin implements Plugin<Project> {
             def props = project.properties
             def mode = props['javafx.signingMode']  ?: jfxc.signingMode
             String keyFile = props?."javafx.${mode}Key.keyStore"
-            return keyFile == null ? jfxc?."${mode}Key"?.keyStore : new File(keyFile)
+            return keyFile == null ? jfxc?."${mode}Key"?.keyStore : new File(project.projectDir, keyFile)
         }
 
         task.conventionMapping.outdir = {convention, aware -> project.libsDir}
@@ -403,7 +403,7 @@ class JavaFXPlugin implements Plugin<Project> {
     to the directory that contains jfxrt.jar, or set JAVA_HOME.""")
             throw new GradleException("jfxrt.jar file not found");
         }
-        println "JavaFX runtime jar: ${jfxrtJar}"
+        project.logger.info("JavaFX runtime jar: ${jfxrtJar}")
         return jfxrtJar
     }
 
@@ -441,7 +441,7 @@ class JavaFXPlugin implements Plugin<Project> {
     to the directory that contains jfxrt.jar, or set JAVA_HOME.""")
             throw new GradleException("ant-javafx.jar file not found");
         }
-        println "JavaFX ant jar: ${antjfxjar}"
+        project.logger.info("JavaFX ant jar: ${antjfxjar}")
         return antjfxjar
     }
 }
