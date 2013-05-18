@@ -1,9 +1,0 @@
-
-
-
-task smoke(dependsOn: ['runAll', 'assembleAll'])
-
-['clean', 'run', 'assemble'].each { t ->
-    task "${t}All"(dependsOn: subprojects*.name.collect {p-> "${p}:${t}"})
-}
-
