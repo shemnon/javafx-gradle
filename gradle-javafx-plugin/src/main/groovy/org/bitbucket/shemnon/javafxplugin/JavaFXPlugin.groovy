@@ -96,11 +96,22 @@ class JavaFXPlugin implements Plugin<Project> {
 
         def jfxrtJarFile = project.files(findJFXJar())
         project.javafx {
+            profileMap = [:]
             jfxrtJar = jfxrtJarFile
             antJavaFXJar = project.files(findAntJavaFXJar())
+            signingMode = 'release'
+            embedLauncher = true
             appName = project.name //FIXME capatalize
             packaging = 'all'
-            signingMode = 'release'
+            width = 1024
+            height = 768
+            embedJNLP = false
+            updateMode = "background"
+            offlineAllowed = true
+            jvmArgs = []
+            systemProperties = [:]
+            arguments = []
+            iconInfos = []
         }
 
 
