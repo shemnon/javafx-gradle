@@ -29,29 +29,55 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- .color-well , .color-well:focused {
-    -fx-background-color: -fx-base;
-    -fx-background-insets: 0;
-    -fx-effect: innershadow(gaussian,rgba(0,0,0,0.7),3,0,0,1);
+ #TestAppToolbar > * > .label {
+     -fx-font-size: 10px;
+ }
+#SamplePageToolBar {
+    -fx-base: #666;
+    -fx-background: #444;
 }
-.color-well:selected {
-    -fx-background-color: -fx-base;
-    -fx-effect: innershadow(gaussian,rgba(0,0,0,1),5,0,0,1);
-    -fx-text-fill: -fx-text-base-color;
-}
-.color-well .text {
-    -fx-effect: null;
+#SamplePageScrollPane {
+    -fx-background-insets: 0,0;
+    -fx-padding: 0;
 }
 .section-label {
     -fx-font-weight: normal;
     -fx-text-fill: derive(-fx-text-background-color,30%);
 }
-
 .section-border {
     -fx-border-color: ladder(
         -fx-background,
         derive(-fx-background,10%) 20%,
         derive(-fx-background,-10%)  21%
-     );;
+     );
     -fx-padding: 20;
+}
+.macWindow {
+    -fx-border-image-source: url("mac-window-frame.png"); 
+    -fx-border-image-slice: 49 49 71 49;
+    -fx-border-image-width: 49 49 71 49;
+    -fx-border-image-repeat: stretch;
+    -fx-font: 13px "Lucida Grande";
+}
+.windows7Window {
+    -fx-border-image-source: url("windows7-window-frame.png"); 
+    -fx-border-image-slice: 49 49 71 49;
+    -fx-border-image-width: 49 49 71 49;
+    -fx-border-image-repeat: stretch;
+    -fx-font: 12px "Segoe UI";
+}
+.windows8Window {
+    -fx-border-image-source: url("windows8-window-frame.png"); 
+    -fx-border-image-slice: 49 49 71 49;
+    -fx-border-image-width: 49 49 71 49;
+    -fx-border-image-repeat: stretch;
+    -fx-font: 12px "Segoe UI";
+}
+.ubuntuWindow {
+    -fx-border-image-source: url("ubuntu-window-frame.png"); 
+    -fx-border-image-slice: 49 49 71 49;
+    -fx-border-image-width: 49 49 71 49;
+    -fx-border-image-repeat: stretch;
+    /*-fx-font: 15px "Ubuntu";*/
+    -fx-font: 13px "Lucida Sans";
 }
