@@ -6,6 +6,6 @@ include 'SwingInterop'
 //JDK 8
 if (JavaVersion.current().java8Compatible) {
     include 'FullyExpressed'
-    include 'ConfrenceScheduleApp'
+    //include 'ConferenceScheduleApp'
     include 'Modena'
 }
