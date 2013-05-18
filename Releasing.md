@@ -19,3 +19,6 @@ Test sample apps on all versions of java
 1. push commits to bitbucket
 1. release the jars on bintray
 1. post release blog post
+1. upgrade the version in ./gradle-javafx-plugin/build.gradle to the next snapshot
+1. downgrade all plugin scripts in the plugin directories to a snapshot plugin
+1. verify cloudbees has published the new snapshot

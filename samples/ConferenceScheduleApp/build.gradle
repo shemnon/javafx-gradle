@@ -1,4 +1,4 @@
-apply from: 'http://dl.bintray.com/content/shemnon/javafx-gradle/javafx.plugin'
+apply from: 'http://dl.bintray.com/shemnon/javafx-gradle/0.3.0/javafx.plugin'
 
 if (!System.getProperty("java.version").matches(/^(1\.)?8.*/)) { //FIXME not the best way, but cloudbees is on an old version of gradle
     throw new GradleException("Java 8 required, ${System.getProperty("java.version")} found")
