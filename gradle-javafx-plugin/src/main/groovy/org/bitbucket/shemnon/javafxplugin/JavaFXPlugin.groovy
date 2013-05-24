@@ -345,13 +345,21 @@ class JavaFXPlugin implements Plugin<Project> {
             project.configurations {
                 scenicview
             }
-            project.repositories {
-                ivy  { url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release' }
-            }
-            project.dependencies {
-                if (JavaVersion.current().java8Compatible) {
-                    scenicview 'com.fxexperience.scenicview:scenicview:8.0-dp1'
-                } else {
+
+            if (JavaVersion.current().java8Compatible) {
+                project.repositories {
+                    maven  { url 'http://dl.bintray.com/scenic-view/scenic-view' }
+                }
+                project.dependencies {
+                    scenicview('org.scenic-view:scenic-view:8.0.0-dp3') {
+                        exclude group: 'org.fxconnector'
+                    }
+                }
+            } else {
+                project.repositories {
+                    ivy  { url 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/release' }
+                }
+                project.dependencies {
                     scenicview 'com.fxexperience.scenicview:scenicview:1.3.0'
                 }
             }
