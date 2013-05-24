@@ -241,7 +241,7 @@ class JavaFXPlugin implements Plugin<Project> {
             FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
             project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it}).
-                    findAll {!it.directory}.
+                    findAll {File f -> f.exists() && !f.directory}.
                     each {
                         ant.copy(
                                 file: it,
