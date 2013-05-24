@@ -383,21 +383,23 @@ class JavaFXPlugin implements Plugin<Project> {
             if (dir == null) {
                 project.logger.debug("$k not set")
             } else {
+                project.logger.debug("$k is $dir")
                 try {
                     result = project.fileTree(dir: dir, include: searchPaths).singleFile
                     project.logger.debug("found $searchID as $result")
                 } catch (IllegalStateException ignore) {
-                    project.logger.debug("either zero or more than one files matched $searchID, ignoring");
                     // no file or two files
+                    project.logger.debug("either zero files or more than one file matched $searchID, ignoring");
                 }
             }
         }
         if (!result?.file) {
             println("""    Could not find $searchID, please set one of $places.keys""")
-            throw new GradleException("jfxrt.jar file not found");
+            throw new GradleException("$searchID not found.\n ${log.join('\n')}");
+        } else {
+            project.logger.info("$searchID: ${result}")
+            return result
         }
-        project.logger.info("$searchID: ${result}")
-        return result
     }
 
     public File findJFXJar() {
