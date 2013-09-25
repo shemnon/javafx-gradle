@@ -140,9 +140,9 @@ class JavaFXPlugin implements Plugin<Project> {
 
 
     private configureJavaFXCSSToBinTask(Project project) {
-        def task = project.task("cssToBin", type: JavaFXCSSToBinTask,
-                description: "Converts CSS to Binary CSS.",
-                group: 'Build')
+        def task = project.tasks.replace("cssToBin", JavaFXCSSToBinTask)
+        task.description =  "Converts CSS to Binary CSS."
+        task.group =  'Build'
 
         task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
 
@@ -155,10 +155,11 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJavaFXJarTask(Project project) {
-        def task = project.task("jfxJar", type: JavaFXJarTask,
-                description: "Adds JavaFX specific packaging to the jar.",
-                group: 'Build',
-                dependsOn: 'jar')
+        def task = project.tasks.replace("jfxJar", JavaFXJarTask)
+        task.description = "Adds JavaFX specific packaging to the jar."
+        task.group = 'Build'
+        task.dependsOn = ['jar']
+        
         project.afterEvaluate {
             project.configurations.archives.artifacts*.builtBy task
         }
@@ -175,14 +176,14 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.classpath = {convention, aware ->
             FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
-            FileCollection output = compileClasspath - providedCompile;
+            return compileClasspath - providedCompile;
         }
     }
 
     private configureGenerateDebugKeyTask(Project project) {
-        def task = project.task("generateDebugKey", type: GenKeyTask,
-                description: "Generates the JavaFX Debug Key.",
-                group: 'Build')
+        def task = project.tasks.replace("generateDebugKey", GenKeyTask)
+        task.description = "Generates the JavaFX Debug Key."
+        task.group = 'Build'
 
         project.afterEvaluate {
             task.enabled = task.enabled && project.javafx.debugKey != null
@@ -198,10 +199,11 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJavaFXSignJarTask(Project project) {
-        def task = project.task("jfxSignJar", type: JavaFXSignJarTask,
-                description: "Signs the JavaFX jars the JavaFX way.",
-                group: 'Build',
-                dependsOn: 'jfxJar')
+        def task = project.tasks.replace("jfxSignJar", JavaFXSignJarTask)
+        task.description = "Signs the JavaFX jars the JavaFX way."
+        task.group = 'Build'
+        task.dependsOn = ['jfxJar']
+        
         project.afterEvaluate {
             project.configurations.archives.artifacts*.builtBy task
             task.enabled = task.enabled && (project.javafx.debugKey != null || project.javafx.releaseKey != null)
@@ -235,7 +237,7 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJFXCopyLibsTask(Project project) {
-        def task = project.task("jfxCopyLibs")
+        def task = project.tasks.replace("jfxCopyLibs")
 
         task.doLast {
             FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
@@ -256,9 +258,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private configureJFXDeployTask(Project project) {
-        def task = project.task("jfxDeploy", type: JavaFXDeployTask,
-                description: "Processes the JavaFX jars and generates webstart and native packages.",
-                group: 'Build')
+        def task = project.tasks.replace("jfxDeploy", JavaFXDeployTask)
+        task.description = "Processes the JavaFX jars and generates webstart and native packages."
+        task.group = 'Build'
 
         [
                 'antJavaFXJar',
@@ -310,9 +312,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
     
     private void configureRunTask(Project project) {
-        JavaExec task = project.task("run", type: JavaExec,
-            description: 'Runs the application.',
-            group: 'Execution')
+        JavaExec task = project.tasks.replace("run", JavaExec)
+        task.description = 'Runs the application.'
+        task.group = 'Execution'
 
         configureRunParams(project, task)
     }
@@ -328,18 +330,18 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private void configureDebugTask(Project project) {
-        JavaExec task = project.task("debug", type:JavaExec,
-            description: 'Runs the applicaiton and sets up debugging on port 5005.',
-            group: 'Execution')
+        JavaExec task = project.tasks.replace("debug", JavaExec)
+        task.description = 'Runs the applicaiton and sets up debugging on port 5005.'
+        task.group = 'Execution'
 
         configureRunParams(project, task)
         task.debug = true
     }
 
     private void configureScenicViewTask(Project project) {
-        def task = project.task("scenicview", type: DefaultTask,
-                description: 'Adds the ScenicView agent to all Execution Tasks.',
-                group: 'Tools')
+        def task = project.tasks.replace("scenicview", DefaultTask)
+        task.description = 'Adds the ScenicView agent to all Execution Tasks.'
+        task.group = 'Tools'
 
         task.doLast {
             project.configurations {
@@ -373,11 +375,11 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     public void configureConfigurations(ConfigurationContainer configurationContainer) {
-        Configuration provideCompileConfiguration = configurationContainer.add(PROVIDED_COMPILE_CONFIGURATION_NAME).setVisible(false).
-                setDescription("Additional compile classpath for libraries that should not be part of the WAR archive.");
-        Configuration provideRuntimeConfiguration = configurationContainer.add(PROVIDED_RUNTIME_CONFIGURATION_NAME).setVisible(false).
+        Configuration provideCompileConfiguration = configurationContainer.create(PROVIDED_COMPILE_CONFIGURATION_NAME).setVisible(false).
+                setDescription("Additional compile classpath for libraries that should not be part of the bundle.");
+        Configuration provideRuntimeConfiguration = configurationContainer.create(PROVIDED_RUNTIME_CONFIGURATION_NAME).setVisible(false).
                 extendsFrom(provideCompileConfiguration).
-                setDescription("Additional runtime classpath for libraries that should not be part of the WAR archive.");
+                setDescription("Additional runtime classpath for libraries that should not be part of the bundle.");
         configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(provideCompileConfiguration);
         configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
