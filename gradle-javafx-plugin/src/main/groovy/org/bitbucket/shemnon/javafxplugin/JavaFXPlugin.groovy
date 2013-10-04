@@ -68,6 +68,9 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     private Project project
+    
+    @Lazy private SourceSet sourceSet = project.javafx.getSourceSet('sourceSet', project)
+    
     @Lazy private String[] profiles = ([] + project.getProperties().profiles?.split(',') + getOSProfileName()).flatten().findAll {
             project.javafx.getProfile(it) != null
         }
@@ -126,7 +129,7 @@ class JavaFXPlugin implements Plugin<Project> {
         configureDebugTask(project)
 
         def mains = []
-        project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].allJava.visit {
+        sourceSet.allJava.visit {
             if (it.relativePath.lastName == 'Main.java') {
                 mains.add(it.relativePath.replaceLastName('Main').pathString.replace('/', '.'))
             }
@@ -144,10 +147,10 @@ class JavaFXPlugin implements Plugin<Project> {
         task.description =  "Converts CSS to Binary CSS."
         task.group =  'Build'
 
-        task.conventionMapping.distsDir = {convention, aware -> convention.getPlugin(JavaPluginConvention).sourceSets.main.output.resourcesDir}
+        task.conventionMapping.distsDir = {convention, aware -> sourceSet.output.resourcesDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            convention.getPlugin(JavaPluginConvention).sourceSets.main.resources
+            sourceSet.resources
         }
 
         project.tasks.getByName("classes").dependsOn(task)
@@ -174,7 +177,7 @@ class JavaFXPlugin implements Plugin<Project> {
             project.tasks.getByName("jar").archivePath
         }
         task.conventionMapping.classpath = {convention, aware ->
-            FileCollection compileClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].compileClasspath;
+            FileCollection compileClasspath = sourceSet.compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
             return compileClasspath - providedCompile;
         }
@@ -228,7 +231,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.outdir = {convention, aware -> project.libsDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
+            FileCollection runtimeClasspath = sourceSet.runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
             project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it})
         }
@@ -240,7 +243,7 @@ class JavaFXPlugin implements Plugin<Project> {
         def task = project.tasks.replace("jfxCopyLibs")
 
         task.doLast {
-            FileCollection runtimeClasspath = project.convention.getPlugin(JavaPluginConvention).sourceSets[SourceSet.MAIN_SOURCE_SET_NAME].runtimeClasspath;
+            FileCollection runtimeClasspath = sourceSet.runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
             project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it}).
                     findAll {File f -> f.exists() && !f.directory}.
@@ -316,11 +319,11 @@ class JavaFXPlugin implements Plugin<Project> {
         task.description = 'Runs the application.'
         task.group = 'Execution'
 
-        configureRunParams(project, task)
+        configureRunParams(task)
     }
 
-    protected void configureRunParams(Project project, JavaExec task) {
-        task.classpath = project.sourceSets.main.runtimeClasspath
+    protected void configureRunParams(JavaExec task) {
+        task.classpath = sourceSet.runtimeClasspath
         task.conventionMapping.main = basicExtensionMapping.curry('mainClass')
         task.doFirst {
             task.jvmArgs basicExtensionMapping('jvmArgs')
@@ -334,7 +337,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.description = 'Runs the applicaiton and sets up debugging on port 5005.'
         task.group = 'Execution'
 
-        configureRunParams(project, task)
+        configureRunParams(task)
         task.debug = true
     }
 

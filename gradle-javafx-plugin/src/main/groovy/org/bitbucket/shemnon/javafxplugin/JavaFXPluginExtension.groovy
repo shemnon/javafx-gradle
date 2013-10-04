@@ -27,6 +27,8 @@
 package org.bitbucket.shemnon.javafxplugin
 
 import com.sun.javafx.tools.packager.DeployParams
+import org.gradle.api.Project
+import org.gradle.api.tasks.SourceSet
 import org.gradle.util.ConfigureUtil
 import org.gradle.api.file.FileCollection
 
@@ -41,6 +43,9 @@ class JavaFXPluginExtension {
     // preliminaries
     FileCollection jfxrtJar
     FileCollection antJavaFXJar
+    
+    // where do we get our source>
+    def sourceSet = 'main'
 
     // build steps
     SigningKeyInfo debugKey
@@ -128,6 +133,18 @@ class JavaFXPluginExtension {
         IconInfo ii = new IconInfo(href)
         ii.kind = kind
         getIconInfos().add(ii)
+    }
+    
+    protected getSourceSet(String propertyName, Project project) {
+        return resolveSourceSet(this[propertyName], project)
+    }
+    
+    protected resolveSourceSet(SourceSet sourceSet, Project project) {
+        return sourceSet
+    }
+    
+    protected resolveSourceSet(String sourceSet, Project project) {
+        return project.sourceSets[sourceSet]
     }
 }
 
