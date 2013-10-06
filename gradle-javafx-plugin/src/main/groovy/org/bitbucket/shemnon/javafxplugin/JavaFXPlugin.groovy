@@ -87,7 +87,6 @@ class JavaFXPlugin implements Plugin<Project> {
     
     protected mainClassConvention = {convention, aware ->
         if (!project.javafx.mainClass) { 
-            
             def mains = []
             sourceSet(project).allJava.visit {
                 if (it.relativePath.lastName == 'Main.java') {
@@ -96,7 +95,7 @@ class JavaFXPlugin implements Plugin<Project> {
             }
     
             if (mains.size() == 1) {
-                project.javafx.mainClass
+                project.javafx.mainClass = mains[0]
             }
         }
         return project.javafx.mainClass
