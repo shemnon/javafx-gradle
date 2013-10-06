@@ -36,13 +36,13 @@ javafx {
         windows {
             id = 'c533f663-1efd-489f-b910-4c7ec20c7fd0'
             category = 'JavaFX Demos'
-            javaRuntime = 'C:/Program Files (x86)/Java/jdk1.7.0_21'
+            //javaRuntime = 'C:/Program Files (x86)/Java/jdk1.7.0_21'
         }
 
         macosx {
             id = 'net.java.openjdk.openjfx.Ensemble2'
             category = 'public.app-category.developer-tools'
-            javaRuntime = '/Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/'
+            //javaRuntime = '/Library/Java/JavaVirtualMachines/jdk1.7.0_21.jdk/'
         }
 
         linux {
@@ -138,3 +138,9 @@ generateDebugKey {
     validity=1
 }
 
+jar {
+    manifest {
+        attributes('-x-bogus': 'a bogus attribute',
+                   '-x-bogus-2': 'a second bogus attribute')
+    }
+}
