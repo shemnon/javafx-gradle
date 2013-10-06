@@ -5,11 +5,11 @@ group = 'org.bitbucket.shemnon.javafxplugin'
 version = '0.4.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy-all:2.0.5'
     compile 'org.jclarion:image4j:0.7'
     compile gradleApi()
     compile files("${System.properties['java.home']}/../lib/ant-javafx.jar")
@@ -53,21 +53,21 @@ uploadArchives {
             dependency {
                 groupId 'net.java.openjdk'
                 artifactId 'jfxrt'
-                version '8b72'
+                version '8b106'
                 scope 'system'
                 systemPath '${java.home}/lib/jfxrt.jar'
             }
             dependency {
                 groupId 'net.java.openjdk'
                 artifactId 'jfxrt'
-                version '8b75'
+                version '8b106'
                 scope 'system'
                 systemPath '${java.home}/lib/ext/jfxrt.jar'
             }
             dependency {
                 groupId 'net.java.openjdk'
                 artifactId 'ant-javafx'
-                version '8b72'
+                version '8b106'
                 scope 'system'
                 systemPath '${java.home}/../lib/ant-javafx.jar'
             }
