@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.Override;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -90,6 +91,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 import javax.imageio.ImageIO;
 
 public class Modena extends Application {
@@ -130,7 +133,7 @@ public class Modena extends Application {
         }
     }
     
-    private final BorderPane outerRoot = new BorderPane();
+    private BorderPane outerRoot;
     private BorderPane root;
     private SamplePageNavigation samplePageNavigation;
     private SamplePage samplePage;
@@ -206,6 +209,7 @@ public class Modena extends Application {
         // set user agent stylesheet
         updateUserAgentStyleSheet(true);
         // build Menu Bar
+        outerRoot = new BorderPane();
         outerRoot.setTop(buildMenuBar());
         outerRoot.setCenter(root);
         // build UI
@@ -218,6 +222,15 @@ public class Modena extends Application {
 //        stage.setIconified(test); // TODO: Blocked by http://javafx-jira.kenai.com/browse/JMY-203
         stage.show(); // see SamplePage.java:110 comment on how test fails without having stage shown
         instance = this;
+        
+        //threading bugs
+        stage.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
     }
     
     private MenuBar buildMenuBar() {
