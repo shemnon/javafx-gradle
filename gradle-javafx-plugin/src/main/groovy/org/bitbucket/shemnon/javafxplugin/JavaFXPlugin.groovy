@@ -69,8 +69,6 @@ class JavaFXPlugin implements Plugin<Project> {
 
     private Project project
     
-    @Lazy private SourceSet sourceSet = project.javafx.getSourceSet('sourceSet', project)
-    
     @Lazy private String[] profiles = ([] + project.getProperties().profiles?.split(',') + getOSProfileName()).flatten().findAll {
             project.javafx.getProfile(it) != null
         }
@@ -85,6 +83,23 @@ class JavaFXPlugin implements Plugin<Project> {
             }
         }
         return ext[prop]
+    }
+    
+    protected mainClassConvention = {convention, aware ->
+        if (!project.javafx.mainClass) { 
+            
+            def mains = []
+            sourceSet(project).allJava.visit {
+                if (it.relativePath.lastName == 'Main.java') {
+                    mains.add(it.relativePath.replaceLastName('Main').pathString.replace('/', '.'))
+                }
+            }
+    
+            if (mains.size() == 1) {
+                project.javafx.mainClass
+            }
+        }
+        return project.javafx.mainClass
     }
 
 
@@ -128,17 +143,6 @@ class JavaFXPlugin implements Plugin<Project> {
         configureRunTask(project)
         configureDebugTask(project)
 
-        def mains = []
-        sourceSet.allJava.visit {
-            if (it.relativePath.lastName == 'Main.java') {
-                mains.add(it.relativePath.replaceLastName('Main').pathString.replace('/', '.'))
-            }
-        }
-
-        if (mains.size() == 1) {
-            project.javafx.mainClass = mains[0]
-        }
-
     }
 
 
@@ -147,10 +151,10 @@ class JavaFXPlugin implements Plugin<Project> {
         task.description =  "Converts CSS to Binary CSS."
         task.group =  'Build'
 
-        task.conventionMapping.distsDir = {convention, aware -> sourceSet.output.resourcesDir}
+        task.conventionMapping.distsDir = {convention, aware -> sourceSet(project).output.resourcesDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            sourceSet.resources
+            sourceSet(project).resources
         }
 
         project.tasks.getByName("classes").dependsOn(task)
@@ -168,16 +172,17 @@ class JavaFXPlugin implements Plugin<Project> {
         }
 
         [
-                'mainClass',
                 'embedLauncher',
                 'arguments'
         ].each {prop -> task.conventionMapping[prop] = basicExtensionMapping.curry(prop) }
+
+        task.conventionMapping.mainClass = mainClassConvention
 
         task.conventionMapping.jarFile = {convention, aware ->
             project.tasks.getByName("jar").archivePath
         }
         task.conventionMapping.classpath = {convention, aware ->
-            FileCollection compileClasspath = sourceSet.compileClasspath;
+            FileCollection compileClasspath = sourceSet(project).compileClasspath;
             Configuration providedCompile = project.configurations[PROVIDED_COMPILE_CONFIGURATION_NAME];
             return compileClasspath - providedCompile;
         }
@@ -231,7 +236,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.outdir = {convention, aware -> project.libsDir}
 
         task.conventionMapping.inputFiles = {convention, aware ->
-            FileCollection runtimeClasspath = sourceSet.runtimeClasspath;
+            FileCollection runtimeClasspath = sourceSet(project).runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
             project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it})
         }
@@ -243,7 +248,7 @@ class JavaFXPlugin implements Plugin<Project> {
         def task = project.tasks.replace("jfxCopyLibs")
 
         task.doLast {
-            FileCollection runtimeClasspath = sourceSet.runtimeClasspath;
+            FileCollection runtimeClasspath = sourceSet(project).runtimeClasspath;
             Configuration providedRuntime = project.configurations[PROVIDED_RUNTIME_CONFIGURATION_NAME];
             project.files(runtimeClasspath - providedRuntime, project.configurations.archives.artifacts.files.collect{it}).
                     findAll {File f -> f.exists() && !f.directory}.
@@ -282,7 +287,6 @@ class JavaFXPlugin implements Plugin<Project> {
                 'javaRuntime',
                 'jvmArgs',
                 'licenseType',
-                'mainClass',
                 'menu',
                 'offlineAllowed',
                 'packaging',
@@ -293,9 +297,8 @@ class JavaFXPlugin implements Plugin<Project> {
                 'width',
         ].each {prop -> task.conventionMapping[prop] = basicExtensionMapping.curry(prop) }
 
-        // version is special
         task.conventionMapping.version = {convention, aware -> ('unspecified' == project.version) ? '0.0.0' : project.version }
-
+        task.conventionMapping.mainClass = mainClassConvention
 
         task.conventionMapping.inputFiles = {convention, aware ->
             project.fileTree(project.libsDir).include("*.jar")
@@ -323,8 +326,11 @@ class JavaFXPlugin implements Plugin<Project> {
     }
 
     protected void configureRunParams(JavaExec task) {
-        task.classpath = sourceSet.runtimeClasspath
-        task.conventionMapping.main = basicExtensionMapping.curry('mainClass')
+        task.conventionMapping.main = mainClassConvention
+        project.afterEvaluate({project ->
+            task.classpath = sourceSet(project).runtimeClasspath
+        })
+
         task.doFirst {
             task.jvmArgs basicExtensionMapping('jvmArgs')
             task.systemProperties basicExtensionMapping('systemProperties')
@@ -386,6 +392,12 @@ class JavaFXPlugin implements Plugin<Project> {
         configurationContainer.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(provideCompileConfiguration);
         configurationContainer.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(provideRuntimeConfiguration);
     }
+
+    public sourceSet(Project project) {
+        return project.javafx.getSourceSet('sourceSet', project)
+    }
+
+
 
     private File searchFile(Map<String, Closure> places, List<String> searchPaths, String searchID) {
         File result = null;
