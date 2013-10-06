@@ -111,10 +111,10 @@ class JavaFXPlugin implements Plugin<Project> {
 
         configureConfigurations(project.configurations)
 
-        def jfxrtJarFile = project.files(findJFXJar())
+        def jfxrtJarFile = project.javafx.jfxrtJar ?: project.files(findJFXJar())
         project.javafx {
             jfxrtJar = jfxrtJarFile
-            antJavaFXJar = project.files(findAntJavaFXJar())
+            antJavaFXJar = antJavaFXJar ?: project.files(findAntJavaFXJar())
             appName = project.name //FIXME capatalize
             packaging = 'all'
             signingMode = 'release'
@@ -418,8 +418,7 @@ class JavaFXPlugin implements Plugin<Project> {
             }
         }
         if (!result?.file) {
-            println("""    Could not find $searchID, please set one of $places.keys""")
-            throw new GradleException("$searchID not found.\n ${log.join('\n')}");
+            throw new GradleException("Could not find $searchID, please set one of ${places.keySet()}");
         } else {
             project.logger.info("$searchID: ${result}")
             return result
