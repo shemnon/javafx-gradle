@@ -59,19 +59,7 @@ public class JavaFXJarTask extends ConventionTask {
     processResources() {
         CreateJarParams createJarParams = new CreateJarParams();
 
-        if (JavaVersion.current().java8Compatible) {
-            createJarParams.addResource(null, getJarFile())
-        } else {
-            // Boo!  Hiss!  Under JDK7 we must explode!
-            File exploded = "build/jdk7Compat/${getJarFile().name}" as File
-            exploded.mkdirs()
-            project.copy {
-                from project.zipTree(getJarFile())
-                into exploded
-            }
-            createJarParams.addResource(exploded, ".")
-        }
-
+        createJarParams.addResource(null, getJarFile())
         createJarParams.applicationClass = getMainClass()
         createJarParams.arguments = getArguments()
         createJarParams.classpath = getClasspath().files.collect {it.name}.join ' '
