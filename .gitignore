@@ -1,2 +1,8 @@
 .gradle/
 build/
+
+debug.keystore
+scenicview.properties
+DataApp/
+hs_err_pid*.log
+*.jks
