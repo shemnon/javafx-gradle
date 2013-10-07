@@ -408,12 +408,14 @@ class JavaFXPlugin implements Plugin<Project> {
                 project.logger.debug("$k not set")
             } else {
                 project.logger.debug("$k is $dir")
-                try {
-                    result = project.fileTree(dir: dir, include: searchPaths).singleFile
-                    project.logger.debug("found $searchID as $result")
-                } catch (IllegalStateException ignore) {
-                    // no file or two files
-                    project.logger.debug("either zero files or more than one file matched $searchID, ignoring");
+                searchPaths.each { s ->
+                    if (result != null) return;
+                    File f = new File(dir, s);
+                    project.logger.debug("Trying $f.path")
+                    if (f.exists() && f.file) {
+                        project.logger.debug("found $searchID as $result")
+                        result = f; 
+                    }
                 }
             }
         }
