@@ -111,10 +111,10 @@ class JavaFXPlugin implements Plugin<Project> {
 
         configureConfigurations(project.configurations)
 
-        def jfxrtJarFile = project.files(findJFXJar())
+        def jfxrtJarFile = project.javafx.jfxrtJar ?: project.files(findJFXJar())
         project.javafx {
             jfxrtJar = jfxrtJarFile
-            antJavaFXJar = project.files(findAntJavaFXJar())
+            antJavaFXJar = antJavaFXJar ?: project.files(findAntJavaFXJar())
             appName = project.name //FIXME capatalize
             packaging = 'all'
             signingMode = 'release'
@@ -408,18 +408,19 @@ class JavaFXPlugin implements Plugin<Project> {
                 project.logger.debug("$k not set")
             } else {
                 project.logger.debug("$k is $dir")
-                try {
-                    result = project.fileTree(dir: dir, include: searchPaths).singleFile
-                    project.logger.debug("found $searchID as $result")
-                } catch (IllegalStateException ignore) {
-                    // no file or two files
-                    project.logger.debug("either zero files or more than one file matched $searchID, ignoring");
+                searchPaths.each { s ->
+                    if (result != null) return;
+                    File f = new File(dir, s);
+                    project.logger.debug("Trying $f.path")
+                    if (f.exists() && f.file) {
+                        project.logger.debug("found $searchID as $result")
+                        result = f; 
+                    }
                 }
             }
         }
         if (!result?.file) {
-            println("""    Could not find $searchID, please set one of $places.keys""")
-            throw new GradleException("$searchID not found.\n ${log.join('\n')}");
+            throw new GradleException("Could not find $searchID, please set one of ${places.keySet()}");
         } else {
             project.logger.info("$searchID: ${result}")
             return result
@@ -432,7 +433,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
                     'java.home in JVM properties': {System.properties['java.home']}
                 ],
-                ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt/jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'],
+                ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'],
                 'JavaFX Runtime Jar')
     }
 
@@ -442,7 +443,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
                     'java.home in JVM properties': {System.properties['java.home']}
                  ],
-                ['lib/ant-javafx.jar'],
+                ['lib/ant-javafx.jar', '../lib/ant-javafx.jar'],
                 'JavaFX Packager Tools')
     }
 }

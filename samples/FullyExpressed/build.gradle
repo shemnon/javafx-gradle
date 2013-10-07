@@ -138,3 +138,9 @@ generateDebugKey {
     validity=1
 }
 
+jar {
+    manifest {
+        attributes('-x-bogus': 'a bogus attribute',
+                   '-x-bogus-2': 'a second bogus attribute')
+    }
+}
