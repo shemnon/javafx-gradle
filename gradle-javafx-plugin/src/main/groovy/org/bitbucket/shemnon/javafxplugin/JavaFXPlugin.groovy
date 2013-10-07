@@ -441,7 +441,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
                     'java.home in JVM properties': {System.properties['java.home']}
                  ],
-                ['lib/ant-javafx.jar'],
+                ['lib/ant-javafx.jar', '../lib/ant-javafx.jar'],
                 'JavaFX Packager Tools')
     }
 }
