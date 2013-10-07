@@ -431,7 +431,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
                     'java.home in JVM properties': {System.properties['java.home']}
                 ],
-                ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt/jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'],
+                ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'],
                 'JavaFX Runtime Jar')
     }
 
