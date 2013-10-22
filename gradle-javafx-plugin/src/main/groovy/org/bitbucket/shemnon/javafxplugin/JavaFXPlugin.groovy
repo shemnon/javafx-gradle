@@ -164,10 +164,10 @@ class JavaFXPlugin implements Plugin<Project> {
         def task = project.tasks.replace("jfxJar", JavaFXJarTask)
         task.description = "Adds JavaFX specific packaging to the jar."
         task.group = 'Build'
-        task.dependsOn = ['jar']
         
         project.afterEvaluate {
             project.configurations.archives.artifacts*.builtBy task
+            task.dependsOn = [sourceSet(project).jarTaskName]
         }
 
         [
@@ -178,7 +178,7 @@ class JavaFXPlugin implements Plugin<Project> {
         task.conventionMapping.mainClass = mainClassConvention
 
         task.conventionMapping.jarFile = {convention, aware ->
-            project.tasks.getByName("jar").archivePath
+            project.tasks.getByName(sourceSet(project).jarTaskName).archivePath
         }
         task.conventionMapping.classpath = {convention, aware ->
             FileCollection compileClasspath = sourceSet(project).compileClasspath;
