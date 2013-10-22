@@ -4,6 +4,10 @@ apply plugin: 'maven'
 group = 'org.bitbucket.shemnon.javafxplugin'
 version = '0.4.0-SNAPSHOT'
 
+if (JavaVersion.current() != JavaVersion.VERSION_1_7) {
+    throw new GradleException("Must Build with Java 1.7")
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
