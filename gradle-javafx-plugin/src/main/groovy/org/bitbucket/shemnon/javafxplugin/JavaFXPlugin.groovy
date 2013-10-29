@@ -361,7 +361,7 @@ class JavaFXPlugin implements Plugin<Project> {
                     maven  { url 'http://dl.bintray.com/scenic-view/scenic-view' }
                 }
                 project.dependencies {
-                    scenicview('org.scenic-view:scenic-view:8.0.0-dp3') {
+                    scenicview('org.scenic-view:scenic-view:8.0.0-dp4') {
                         exclude group: 'org.fxconnector'
                     }
                 }
